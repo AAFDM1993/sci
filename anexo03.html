@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 03 · Organización del Incidente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .staff-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+    .staff-card-title{font-family:var(--ft);font-size:13px;font-weight:700;color:#1A1917;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .staff-badge{background:var(--r);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.05em;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .toggle-lbl{font-size:12px;font-weight:600;color:#1A1917;}
+    input[type=checkbox].toggle{width:16px;height:16px;accent-color:var(--r);cursor:pointer;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Referencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Referencia del incidente</div>
+    <div class="field">
+      <label>Referencia del incidente</label>
+      <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX" oninput="calcProg()">
+    </div>
+  </div>
+
+  <!-- Sección 2: Comando del Incidente -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Comando del Incidente</div>
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">CI</span>Comandante del Incidente</div>
+      <div class="cols-3">
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input type="text" id="f-ci_nombre" placeholder="Grado + Nombre" oninput="calcProg()">
+        </div>
+        <div class="field">
+          <label>Código</label>
+          <input type="text" id="f-ci_codigo" placeholder="LIM-01-042">
+        </div>
+        <div class="field">
+          <label>Compañía</label>
+          <input type="text" id="f-ci_compania" placeholder="CIA-1">
+        </div>
+      </div>
+      <div class="field">
+        <label>Canal / Frecuencia radio</label>
+        <input type="text" id="f-ci_radio" placeholder="Canal 1 / 155.340 MHz">
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">OS</span>Oficial de Seguridad</div>
+      <div class="cols-2">
+        <div class="field"><label>Nombre</label><input type="text" id="f-os_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-os_compania" placeholder="CIA-X"></div>
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">OE</span>Oficial de Enlace</div>
+      <div class="cols-2">
+        <div class="field"><label>Nombre</label><input type="text" id="f-oe_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-oe_compania" placeholder="CIA-X"></div>
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">OI</span>Oficial de Información Pública</div>
+      <div class="cols-2">
+        <div class="field"><label>Nombre</label><input type="text" id="f-oi_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-oi_compania" placeholder="CIA-X"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Secciones del SCI -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Secciones del SCI</div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">OPS</span>Jefe de Operaciones</div>
+      <div class="cols-3">
+        <div class="field"><label>Nombre</label><input type="text" id="f-ops_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-ops_compania" placeholder="CIA-X"></div>
+        <div class="field"><label>Radio</label><input type="text" id="f-ops_radio" placeholder="Canal / Frecuencia"></div>
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">LOG</span>Jefe de Logística</div>
+      <div class="cols-3">
+        <div class="field"><label>Nombre</label><input type="text" id="f-log_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-log_compania" placeholder="CIA-X"></div>
+        <div class="field"><label>Radio</label><input type="text" id="f-log_radio" placeholder="Canal / Frecuencia"></div>
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title"><span class="staff-badge">PLAN</span>Jefe de Planificación</div>
+      <div class="cols-3">
+        <div class="field"><label>Nombre</label><input type="text" id="f-plan_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-plan_compania" placeholder="CIA-X"></div>
+        <div class="field"><label>Radio</label><input type="text" id="f-plan_radio" placeholder="Canal / Frecuencia"></div>
+      </div>
+    </div>
+
+    <div class="staff-card">
+      <div class="staff-card-title">
+        <span class="staff-badge">ADM</span>Administración / Finanzas
+        <label class="toggle-row" style="margin-left:auto;margin-bottom:0;">
+          <input type="checkbox" class="toggle" id="f-adm_activo">
+          <span class="toggle-lbl" style="font-size:11px;">Activada</span>
+        </label>
+      </div>
+      <div class="cols-3">
+        <div class="field"><label>Nombre</label><input type="text" id="f-adm_nombre" placeholder="Grado + Nombre"></div>
+        <div class="field"><label>Compañía</label><input type="text" id="f-adm_compania" placeholder="CIA-X"></div>
+        <div class="field"><label>Función</label><input type="text" id="f-adm_funcion" placeholder="Ej: Control de costos"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 4: Grupos de Operaciones -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Grupos / Divisiones de Operaciones</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Grupo / División</th><th>Jefe de grupo</th><th>Compañía</th>
+          <th>N° personal</th><th>Función / Sector</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="grupos-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Grupo Ataque"></td>
+            <td><input type="text" placeholder="Apellido"></td>
+            <td><input type="text" placeholder="CIA-X"></td>
+            <td><input type="number" placeholder="4" min="1"></td>
+            <td><input type="text" placeholder="Ataque interior sector norte"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addGrupoRow()">+ Agregar grupo</button>
+  </div>
+
+  <!-- Sección 5: Unidades de Logística -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Unidades de Logística</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Unidad</th><th>Responsable</th><th>Función</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="log-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Unidad de Abastecimiento"></td>
+            <td><input type="text" placeholder="Apellido"></td>
+            <td><input type="text" placeholder="Gestión de combustible y materiales"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addLogRow()">+ Agregar unidad</button>
+  </div>
+
+  <!-- Sección 6: Especialistas de Planificación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Especialistas de Planificación</div>
+    <div class="field">
+      <label>Especialistas técnicos asignados</label>
+      <textarea id="f-especialistas_plan" placeholder="Ej: Ing. Químico (HazMat), Médico de emergencias, Especialista en estructuras..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 7: Agencias externas -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Agencias externas coordinadas</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Agencia / Institución</th><th>Representante</th><th>Función en el incidente</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="agencias-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: PNP"></td>
+            <td><input type="text" placeholder="Nombre / Grado"></td>
+            <td><input type="text" placeholder="Control de perímetro"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addAgenciaRow()">+ Agregar agencia</button>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-ci_nombre'];
+
+  initAnexoPage({
+    numero   : '03',
+    ics      : 'ICS 203',
+    titulo   : 'Organización del Incidente',
+    anterior : { num:'02', label:'Objetivos' },
+    siguiente: { num:'04', label:'Recursos' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.grupos_operaciones = recolectarTabla('grupos-body',
+        [{key:'grupo',type:'text'},{key:'jefe',type:'text'},{key:'compania',type:'text'},
+         {key:'personal',type:'text'},{key:'funcion',type:'text'}]);
+      datos.unidades_logistica = recolectarTabla('log-body',
+        [{key:'unidad',type:'text'},{key:'responsable',type:'text'},{key:'funcion',type:'text'}]);
+      datos.agencias_externas = recolectarTabla('agencias-body',
+        [{key:'agencia',type:'text'},{key:'representante',type:'text'},{key:'funcion',type:'text'}]);
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'grupos_operaciones' && Array.isArray(valor)) {
+        document.getElementById('grupos-body').innerHTML = '';
+        valor.forEach(r => addGrupoRowConValor(r));
+      }
+      if (campo === 'unidades_logistica' && Array.isArray(valor)) {
+        document.getElementById('log-body').innerHTML = '';
+        valor.forEach(r => addLogRowConValor(r));
+      }
+      if (campo === 'agencias_externas' && Array.isArray(valor)) {
+        document.getElementById('agencias-body').innerHTML = '';
+        valor.forEach(r => addAgenciaRowConValor(r));
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  function addGrupoRow() { addGrupoRowConValor({}); }
+  function addGrupoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.grupo||''}" placeholder="Nombre del grupo"></td>
+      <td><input type="text" value="${r.jefe||''}" placeholder="Apellido"></td>
+      <td><input type="text" value="${r.compania||''}" placeholder="CIA-X"></td>
+      <td><input type="number" value="${r.personal||''}" placeholder="4" min="1"></td>
+      <td><input type="text" value="${r.funcion||''}" placeholder="Función / Sector"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('grupos-body').appendChild(tr);
+  }
+
+  function addLogRow() { addLogRowConValor({}); }
+  function addLogRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.unidad||''}" placeholder="Nombre de la unidad"></td>
+      <td><input type="text" value="${r.responsable||''}" placeholder="Apellido"></td>
+      <td><input type="text" value="${r.funcion||''}" placeholder="Función"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('log-body').appendChild(tr);
+  }
+
+  function addAgenciaRow() { addAgenciaRowConValor({}); }
+  function addAgenciaRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.agencia||''}" placeholder="Nombre de la agencia"></td>
+      <td><input type="text" value="${r.representante||''}" placeholder="Nombre / Grado"></td>
+      <td><input type="text" value="${r.funcion||''}" placeholder="Función en el incidente"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('agencias-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

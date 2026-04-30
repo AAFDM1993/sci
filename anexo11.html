@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 11 · Complementarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .cols-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .canvas-wrap{position:relative;border:1px solid var(--g2);border-radius:8px;overflow:hidden;background:white;}
+    #croquis-canvas{display:block;width:100%;cursor:crosshair;touch-action:none;}
+    .canvas-tools{display:flex;gap:6px;padding:8px;background:var(--g1);border-bottom:1px solid var(--g2);flex-wrap:wrap;align-items:center;}
+    .tool-btn{padding:4px 10px;border:1px solid var(--g2);border-radius:5px;font-size:11px;cursor:pointer;font-family:var(--fn);background:white;transition:all .1s;}
+    .tool-btn:hover,.tool-btn.active{background:var(--r);color:white;border-color:var(--r);}
+    .color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .1s;}
+    .color-dot.active{border-color:#1A1917;}
+    .cuadrante-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .cuadrante-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:10px 12px;}
+    .cuadrante-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);margin-bottom:5px;}
+    .cuadrante-card textarea{width:100%;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;font-size:12px;font-family:var(--fn);resize:vertical;min-height:60px;}
+    .cuadrante-card textarea:focus{outline:none;border-color:var(--r);}
+    .fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px;}
+    .foto-thumb{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--g2);background:var(--g1);}
+    .foto-thumb img{width:100%;height:110px;object-fit:cover;display:block;}
+    .foto-thumb-lbl{padding:4px 6px;font-size:10px;color:var(--gt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .foto-thumb a{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);color:white;border-radius:4px;padding:2px 6px;font-size:10px;text-decoration:none;}
+    .btn-upload{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--r);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--fn);transition:background .12s;}
+    .btn-upload:hover{background:var(--rd);}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .chk-list{display:flex;flex-direction:column;gap:6px;}
+    .chk-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--g1);border:1px solid var(--g2);border-radius:6px;}
+    .chk-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--r);cursor:pointer;flex-shrink:0;}
+    .chk-txt{font-size:12px;flex:1;}
+    .chk-row:has(input:checked){background:var(--rl);border-color:#E8A0A0;}
+    .dano-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;}
+    .dano-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:10px;text-align:center;}
+    .dano-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);margin-bottom:6px;}
+    .dano-card input{width:100%;padding:6px;border:1px solid var(--g2);border-radius:6px;font-size:18px;font-weight:700;text-align:center;background:white;font-family:var(--fn);}
+    .dano-card input:focus{outline:none;border-color:var(--r);}
+  </style>
+</head>
+<body>
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Referencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Referencia del incidente</div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Referencia del incidente</label>
+        <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+      </div>
+      <div class="field">
+        <label>N° expediente</label>
+        <input type="text" id="f-num_expediente" placeholder="Ej: EXP-2026-001">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Croquis del incidente -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Croquis del incidente</div>
+    <div class="canvas-tools">
+      <button class="tool-btn active" id="tool-draw" onclick="setTool('draw')">✏️ Dibujar</button>
+      <button class="tool-btn" id="tool-erase" onclick="setTool('erase')">🧹 Borrar</button>
+      <button class="tool-btn" onclick="clearCanvas()">🗑️ Limpiar</button>
+      <div style="width:1px;height:20px;background:var(--g2);margin:0 4px;"></div>
+      <span style="font-size:11px;color:var(--gt);">Color:</span>
+      <div class="color-dot active" style="background:#1A1917;" onclick="setColor('#1A1917',this)"></div>
+      <div class="color-dot" style="background:#CC1E1E;" onclick="setColor('#CC1E1E',this)"></div>
+      <div class="color-dot" style="background:#1E40AF;" onclick="setColor('#1E40AF',this)"></div>
+      <div class="color-dot" style="background:#065F46;" onclick="setColor('#065F46',this)"></div>
+      <div class="color-dot" style="background:#92400E;" onclick="setColor('#92400E',this)"></div>
+      <div style="width:1px;height:20px;background:var(--g2);margin:0 4px;"></div>
+      <span style="font-size:11px;color:var(--gt);">Grosor:</span>
+      <input type="range" id="brush-size" min="1" max="20" value="3" style="width:70px;">
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button class="tool-btn" onclick="guardarCroquis()">💾 Guardar en Drive</button>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="croquis-canvas" width="828" height="400"></canvas>
+    </div>
+    <div class="cols-3" style="margin-top:10px;">
+      <div class="field">
+        <label>Descripción del croquis</label>
+        <input type="text" id="f-croquis_descripcion" placeholder="Ej: Vista aérea del incidente">
+      </div>
+      <div class="field">
+        <label>Elaborado por</label>
+        <input type="text" id="f-croquis_elaborado_por" placeholder="Nombre del responsable">
+      </div>
+      <div class="field">
+        <label>Hora de elaboración</label>
+        <input type="time" id="f-croquis_hora">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Cuadrantes del incidente -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Descripción por cuadrantes</div>
+    <div class="cuadrante-grid">
+      <div class="cuadrante-card">
+        <div class="cuadrante-label">⬆️ Alfa (Frente / Norte)</div>
+        <textarea id="f-cuadrante_alfa" placeholder="Descripción del sector Alfa..."></textarea>
+      </div>
+      <div class="cuadrante-card">
+        <div class="cuadrante-label">➡️ Bravo (Derecha / Este)</div>
+        <textarea id="f-cuadrante_bravo" placeholder="Descripción del sector Bravo..."></textarea>
+      </div>
+      <div class="cuadrante-card">
+        <div class="cuadrante-label">⬇️ Charlie (Posterior / Sur)</div>
+        <textarea id="f-cuadrante_charlie" placeholder="Descripción del sector Charlie..."></textarea>
+      </div>
+      <div class="cuadrante-card">
+        <div class="cuadrante-label">⬅️ Delta (Izquierda / Oeste)</div>
+        <textarea id="f-cuadrante_delta" placeholder="Descripción del sector Delta..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 4: Fotografías -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Registro fotográfico</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+      <input type="file" id="foto-input" accept="image/*" style="display:none;" onchange="subirFoto()">
+      <button class="btn-upload" onclick="document.getElementById('foto-input').click()">
+        📷 Subir fotografía
+      </button>
+      <span style="font-size:11px;color:var(--gt);">Las fotos se guardan en la carpeta Drive del incidente</span>
+    </div>
+    <div class="fotos-grid" id="fotos-grid"></div>
+  </div>
+
+  <!-- Sección 5: Evaluación de daños -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Evaluación de daños</div>
+    <div class="dano-grid">
+      <div class="dano-card">
+        <div class="dano-label">Daño parcial</div>
+        <input type="number" id="f-dano_parcial" placeholder="0" min="0">
+      </div>
+      <div class="dano-card">
+        <div class="dano-label">Daño total</div>
+        <input type="number" id="f-dano_total" placeholder="0" min="0">
+      </div>
+      <div class="dano-card">
+        <div class="dano-label">Víctimas</div>
+        <input type="number" id="f-dano_victimas" placeholder="0" min="0">
+      </div>
+      <div class="dano-card">
+        <div class="dano-label">Daño estimado (S/.)</div>
+        <input type="number" id="f-dano_estimado" placeholder="0" min="0">
+      </div>
+    </div>
+    <div style="overflow-x:auto;margin-top:12px;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Bien afectado</th><th>Tipo de daño</th><th>Propietario</th>
+          <th>Valor estimado (S/.)</th><th>Observaciones</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="danos-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Vivienda 3er piso"></td>
+            <td><select><option value="">Tipo...</option><option>Parcial</option><option>Total</option><option>Estructural</option><option>Contenido</option></select></td>
+            <td><input type="text" placeholder="Nombre del propietario"></td>
+            <td><input type="number" placeholder="0" min="0"></td>
+            <td><input type="text" placeholder="Observaciones"></td>
+            <td><button class="btn-del" onclick="delRow(this)">x</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addDanoRow()">+ Agregar bien afectado</button>
+    <div class="field" style="margin-top:10px;">
+      <label>Evaluador de daños</label>
+      <input type="text" id="f-evaluador_danos" placeholder="Nombre del evaluador">
+    </div>
+  </div>
+
+  <!-- Sección 6: Inventario de equipos -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Inventario de equipos utilizados</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Equipo / Material</th><th>Cantidad usada</th><th>Unidad</th>
+          <th>Estado final</th><th>Requiere reposición</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="inv-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Manguera 1.5 pulgada"></td>
+            <td><input type="number" placeholder="2" min="0"></td>
+            <td><input type="text" placeholder="Ej: metros / unidades"></td>
+            <td><select><option value="">Estado...</option><option>Bueno</option><option>Dañado</option><option>Consumido</option><option>Perdido</option></select></td>
+            <td style="text-align:center;"><input type="checkbox"></td>
+            <td><button class="btn-del" onclick="delRow(this)">x</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addInvRow()">+ Agregar equipo</button>
+  </div>
+
+  <!-- Sección 7: Contactos de emergencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Contactos de emergencia utilizados</div>
+    <div class="cols-2">
+      <div class="field"><label>PNP</label><input type="text" id="f-contacto_pnp" placeholder="Nombre / Teléfono"></div>
+      <div class="field"><label>SAMU / Emergencias médicas</label><input type="text" id="f-contacto_samu" placeholder="Nombre / Teléfono"></div>
+      <div class="field"><label>Serenazgo</label><input type="text" id="f-contacto_serenazgo" placeholder="Nombre / Teléfono"></div>
+      <div class="field"><label>Empresa de gas / electricidad</label><input type="text" id="f-contacto_servicios" placeholder="Nombre / Teléfono"></div>
+      <div class="field"><label>Defensa Civil</label><input type="text" id="f-contacto_defcivil" placeholder="Nombre / Teléfono"></div>
+      <div class="field"><label>Otro contacto</label><input type="text" id="f-contacto_otro" placeholder="Institución / Teléfono"></div>
+    </div>
+  </div>
+
+  <!-- Sección 8: Anexos completados -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">8</div>Estado de los anexos del incidente</div>
+    <div class="chk-list" id="anexos-chk">
+      <div class="chk-row"><input type="checkbox" id="anx-01"><label class="chk-txt" for="anx-01">Anexo 01 — Resumen del Incidente (ICS 201)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-02"><label class="chk-txt" for="anx-02">Anexo 02 — Objetivos del Incidente (ICS 202)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-03"><label class="chk-txt" for="anx-03">Anexo 03 — Organización del Incidente (ICS 203)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-04"><label class="chk-txt" for="anx-04">Anexo 04 — Asignación de Recursos (ICS 204)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-05"><label class="chk-txt" for="anx-05">Anexo 05 — Plan de Comunicaciones (ICS 205)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-06"><label class="chk-txt" for="anx-06">Anexo 06 — Plan Médico (ICS 206)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-07"><label class="chk-txt" for="anx-07">Anexo 07 — Plan de Seguridad (ICS 208)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-08"><label class="chk-txt" for="anx-08">Anexo 08 — Registro de Personal (ICS 211)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-09"><label class="chk-txt" for="anx-09">Anexo 09 — Bitácora del Incidente (ICS 214)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-10"><label class="chk-txt" for="anx-10">Anexo 10 — Desmovilización (ICS 221)</label></div>
+      <div class="chk-row"><input type="checkbox" id="anx-11" checked><label class="chk-txt" for="anx-11">Anexo 11 — Complementarios (este documento)</label></div>
+    </div>
+  </div>
+
+  <!-- Sección 9: Cierre y archivo -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">9</div>Cierre y archivo del expediente</div>
+    <div class="cols-2">
+      <div class="field">
+        <label>CI final <span class="req">*</span></label>
+        <input type="text" id="f-ci_final" placeholder="Grado + Nombre del CI" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Compañía</label>
+        <input type="text" id="f-ci_compania_final" placeholder="CIA-X">
+      </div>
+      <div class="field">
+        <label>Archivado por</label>
+        <input type="text" id="f-archivado_por" placeholder="Nombre del responsable de archivo">
+      </div>
+      <div class="field">
+        <label>Fecha de archivo</label>
+        <input type="date" id="f-fecha_archivo">
+      </div>
+    </div>
+    <div class="field">
+      <label>Observaciones finales</label>
+      <textarea id="f-obs_finales" placeholder="Observaciones finales del incidente, recomendaciones, aspectos a mejorar..."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-ci_final'];
+
+  initAnexoPage({
+    numero   : '11',
+    ics      : 'ICS 214-C',
+    titulo   : 'Complementarios',
+    anterior : { num:'10', label:'Desmovilizacion' },
+    siguiente: null,
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+
+      // Croquis canvas como base64
+      const canvas = document.getElementById('croquis-canvas');
+      if (canvas) datos.croquis_base64 = canvas.toDataURL('image/png').split(',')[1];
+
+      // Tabla de daños
+      datos.tabla_danos = Array.from(document.querySelectorAll('#danos-body tr')).map(tr => {
+        const inp = tr.querySelectorAll('input[type=text],input[type=number]');
+        const sel = tr.querySelector('select');
+        return { bien:inp[0]?.value, tipo:sel?.value, propietario:inp[1]?.value,
+                 valor:inp[2]?.value, obs:inp[3]?.value };
+      });
+
+      // Inventario de equipos
+      datos.inventario_equipos = Array.from(document.querySelectorAll('#inv-body tr')).map(tr => {
+        const inp = tr.querySelectorAll('input[type=text],input[type=number]');
+        const sel = tr.querySelector('select');
+        const chk = tr.querySelector('input[type=checkbox]');
+        return { equipo:inp[0]?.value, cantidad:inp[1]?.value, unidad:inp[2]?.value,
+                 estado:sel?.value, reposicion:chk?.checked };
+      });
+
+      // Contactos como objeto
+      datos.contactos = {
+        pnp      : document.getElementById('f-contacto_pnp')?.value || '',
+        samu     : document.getElementById('f-contacto_samu')?.value || '',
+        serenazgo: document.getElementById('f-contacto_serenazgo')?.value || '',
+        servicios: document.getElementById('f-contacto_servicios')?.value || '',
+        defcivil : document.getElementById('f-contacto_defcivil')?.value || '',
+        otro     : document.getElementById('f-contacto_otro')?.value || '',
+      };
+      delete datos.contacto_pnp; delete datos.contacto_samu;
+      delete datos.contacto_serenazgo; delete datos.contacto_servicios;
+      delete datos.contacto_defcivil; delete datos.contacto_otro;
+
+      // Anexos completados
+      datos.anexos_completados = Array.from(
+        document.querySelectorAll('#anexos-chk input:checked')
+      ).map(cb => cb.id.replace('anx-',''));
+
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'tabla_danos' && Array.isArray(valor)) {
+        document.getElementById('danos-body').innerHTML = '';
+        valor.forEach(r => addDanoRowConValor(r));
+      }
+      if (campo === 'inventario_equipos' && Array.isArray(valor)) {
+        document.getElementById('inv-body').innerHTML = '';
+        valor.forEach(r => addInvRowConValor(r));
+      }
+      if (campo === 'contactos' && typeof valor === 'object') {
+        if (valor.pnp)       document.getElementById('f-contacto_pnp').value       = valor.pnp;
+        if (valor.samu)      document.getElementById('f-contacto_samu').value      = valor.samu;
+        if (valor.serenazgo) document.getElementById('f-contacto_serenazgo').value = valor.serenazgo;
+        if (valor.servicios) document.getElementById('f-contacto_servicios').value = valor.servicios;
+        if (valor.defcivil)  document.getElementById('f-contacto_defcivil').value  = valor.defcivil;
+        if (valor.otro)      document.getElementById('f-contacto_otro').value      = valor.otro;
+      }
+      if (campo === 'anexos_completados' && Array.isArray(valor)) {
+        valor.forEach(num => {
+          const cb = document.getElementById('anx-' + num);
+          if (cb) cb.checked = true;
+        });
+      }
+      if (campo === 'croquis_base64' && valor) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.getElementById('croquis-canvas');
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = 'data:image/png;base64,' + valor;
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  // ── Canvas de croquis ─────────────────────────────────────
+  const canvas  = document.getElementById('croquis-canvas');
+  const ctx     = canvas.getContext('2d');
+  let drawing   = false;
+  let tool      = 'draw';
+  let color     = '#1A1917';
+  let brushSize = 3;
+
+  // Ajustar resolución del canvas al tamaño real
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr  = window.devicePixelRatio || 1;
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src  = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousedown',  e => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove',  e => { if (!drawing) return; draw(getPos(e)); });
+  canvas.addEventListener('mouseup',    () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, { passive:false });
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if (!drawing) return; draw(getPos(e)); }, { passive:false });
+  canvas.addEventListener('touchend',   () => drawing = false);
+
+  function draw(pos) {
+    ctx.lineWidth   = tool === 'erase' ? brushSize * 4 : brushSize;
+    ctx.lineCap     = 'round';
+    ctx.strokeStyle = tool === 'erase' ? '#FFFFFF' : color;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  }
+
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tool-' + t)?.classList.add('active');
+  }
+
+  function setColor(c, dot) {
+    color = c;
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    dot.classList.add('active');
+    if (tool === 'erase') setTool('draw');
+  }
+
+  function clearCanvas() {
+    if (!confirm('Limpiar el croquis?')) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  document.getElementById('brush-size').addEventListener('input', e => {
+    brushSize = parseInt(e.target.value);
+  });
+
+  async function guardarCroquis() {
+    const res = await CGBVP_FORM.guardarCroquis('croquis-canvas');
+    if (res.ok) console.log('Croquis guardado:', res.data?.url);
+  }
+
+  // ── Fotos ─────────────────────────────────────────────────
+  async function subirFoto() {
+    const res = await CGBVP_FORM.subirFoto('foto-input', 'Fotografias');
+    if (res.ok) {
+      const grid = document.getElementById('fotos-grid');
+      const div  = document.createElement('div');
+      div.className = 'foto-thumb';
+      div.innerHTML = `
+        <img src="${res.data.thumbnail}" alt="${res.data.filename}">
+        <div class="foto-thumb-lbl">${res.data.filename}</div>
+        <a href="${res.data.url}" target="_blank">Ver</a>`;
+      grid.appendChild(div);
+    }
+  }
+
+  // Cargar fotos existentes al iniciar
+  window.addEventListener('cgbvp:loaded', async () => {
+    await CGBVP_FORM.cargarFotos('fotos-grid', 'Fotografias');
+  });
+
+  // ── Tabla de daños ────────────────────────────────────────
+  function addDanoRow() { addDanoRowConValor({}); }
+  function addDanoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.bien||''}" placeholder="Bien afectado"></td>
+      <td><select>${['','Parcial','Total','Estructural','Contenido']
+        .map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.propietario||''}" placeholder="Propietario"></td>
+      <td><input type="number" value="${r.valor||''}" placeholder="0" min="0"></td>
+      <td><input type="text" value="${r.obs||''}" placeholder="Observaciones"></td>
+      <td><button class="btn-del" onclick="delRow(this)">x</button></td>`;
+    document.getElementById('danos-body').appendChild(tr);
+  }
+
+  // ── Inventario ────────────────────────────────────────────
+  function addInvRow() { addInvRowConValor({}); }
+  function addInvRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.equipo||''}" placeholder="Nombre del equipo"></td>
+      <td><input type="number" value="${r.cantidad||''}" placeholder="1" min="0"></td>
+      <td><input type="text" value="${r.unidad||''}" placeholder="metros / unidades"></td>
+      <td><select>${['','Bueno','Dañado','Consumido','Perdido']
+        .map(t=>`<option ${r.estado===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td style="text-align:center;"><input type="checkbox" ${r.reposicion?'checked':''}></td>
+      <td><button class="btn-del" onclick="delRow(this)">x</button></td>`;
+    document.getElementById('inv-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  // Inicializar canvas con fondo blanco
+  window.addEventListener('load', () => {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  });
+
+  calcProg();
+</script>
+</body>
+</html>

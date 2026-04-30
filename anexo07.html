@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 07 · Plan de Seguridad</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .zona-card{border-radius:8px;padding:14px;margin-bottom:10px;}
+    .z-caliente{background:#FEE2E2;border:1px solid #FCA5A5;}
+    .z-tibia{background:#FEF9C3;border:1px solid #FDE047;}
+    .z-fria{background:#D1FAE5;border:1px solid #6EE7B7;}
+    .zona-title{font-family:var(--ft);font-size:14px;font-weight:700;margin-bottom:10px;}
+    .z-caliente .zona-title{color:#991B1B;}
+    .z-tibia .zona-title{color:#92400E;}
+    .z-fria .zona-title{color:#065F46;}
+    .zona-card .field input,.zona-card .field textarea{background:white;}
+    .epp-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px;}
+    .epp-item{display:flex;align-items:center;gap:5px;background:white;border:1px solid var(--g2);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;transition:all .1s;font-family:var(--fn);}
+    .epp-item input{width:13px;height:13px;accent-color:var(--r);cursor:pointer;}
+    .epp-item:has(input:checked){background:var(--rl);border-color:#E8A0A0;color:#8B1515;font-weight:600;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .chk-list{display:flex;flex-direction:column;gap:6px;}
+    .chk-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--g1);border:1px solid var(--g2);border-radius:6px;}
+    .chk-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--r);cursor:pointer;flex-shrink:0;}
+    .chk-txt{font-size:12px;flex:1;}
+    .chk-row:has(input:checked){background:var(--rl);border-color:#E8A0A0;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Oficial de Seguridad -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Oficial de Seguridad (OS)</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Nombre <span class="req">*</span></label>
+        <input type="text" id="f-os_nombre" placeholder="Grado + Nombre" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Código</label>
+        <input type="text" id="f-os_codigo" placeholder="LIM-01-XXX">
+      </div>
+      <div class="field">
+        <label>Compañía</label>
+        <input type="text" id="f-os_compania" placeholder="CIA-X">
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Radio / Canal</label>
+        <input type="text" id="f-os_radio" placeholder="Canal 1 / Frecuencia">
+      </div>
+      <div class="field">
+        <label>N° período operativo</label>
+        <input type="number" id="f-periodo_num" placeholder="1" min="1">
+      </div>
+    </div>
+    <div class="field">
+      <label>Referencia del incidente</label>
+      <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+    </div>
+  </div>
+
+  <!-- Sección 2: Zonas de trabajo -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Zonas de trabajo</div>
+
+    <div class="zona-card z-caliente">
+      <div class="zona-title">🔴 Zona Caliente (Exclusión)</div>
+      <div class="field"><label>Descripción del área</label>
+        <textarea id="f-zona_caliente_desc" placeholder="Límites y características de la zona caliente..."></textarea></div>
+      <div class="cols-2">
+        <div class="field"><label>Control de acceso</label>
+          <input type="text" id="f-zona_caliente_acceso" placeholder="Ej: Solo personal con EPP nivel A"></div>
+        <div class="field"><label>Medidas de control</label>
+          <input type="text" id="f-zona_caliente_control" placeholder="Ej: Cinta roja + vigilante"></div>
+      </div>
+    </div>
+
+    <div class="zona-card z-tibia">
+      <div class="zona-title">🟡 Zona Tibia (Reducción de contaminación)</div>
+      <div class="field"><label>Descripción del área</label>
+        <textarea id="f-zona_tibia_desc" placeholder="Límites y características de la zona tibia..."></textarea></div>
+      <div class="cols-2">
+        <div class="field"><label>Control de acceso</label>
+          <input type="text" id="f-zona_tibia_acceso" placeholder="Ej: Personal con EPP nivel B"></div>
+        <div class="field"><label>Función principal</label>
+          <input type="text" id="f-zona_tibia_funcion" placeholder="Ej: Descontaminación"></div>
+      </div>
+    </div>
+
+    <div class="zona-card z-fria">
+      <div class="zona-title">🟢 Zona Fría (Apoyo)</div>
+      <div class="field"><label>Descripción del área</label>
+        <textarea id="f-zona_fria_desc" placeholder="Límites y características de la zona fría..."></textarea></div>
+      <div class="cols-2">
+        <div class="field"><label>Puesto de Comando (PC)</label>
+          <input type="text" id="f-zona_fria_pc" placeholder="Ubicación del PC"></div>
+        <div class="field"><label>Control de acceso</label>
+          <input type="text" id="f-zona_fria_acceso" placeholder="Ej: Personal autorizado con credencial"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Riesgos identificados -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Riesgos identificados</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Riesgo</th><th>Probabilidad</th><th>Severidad</th>
+          <th>Medida de control</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="riesgos-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Colapso estructural"></td>
+            <td><select><option value="">...</option><option>Baja</option><option>Media</option><option>Alta</option></select></td>
+            <td><select><option value="">...</option><option>Leve</option><option>Moderada</option><option>Grave</option><option>Crítica</option></select></td>
+            <td><input type="text" placeholder="Medida de mitigación"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addRiesgoRow()">+ Agregar riesgo</button>
+  </div>
+
+  <!-- Sección 4: EPP requerido por zona -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>EPP requerido por zona</div>
+    <div class="field">
+      <label>Zona Caliente — EPP requerido</label>
+      <div class="epp-grid" id="epp-caliente">
+        <label class="epp-item"><input type="checkbox" value="Casco estructural"> Casco estructural</label>
+        <label class="epp-item"><input type="checkbox" value="ERA (Equipo Respiración Autónoma)"> ERA</label>
+        <label class="epp-item"><input type="checkbox" value="Traje de aproximación"> Traje aproximación</label>
+        <label class="epp-item"><input type="checkbox" value="Traje HazMat nivel A"> Traje HazMat A</label>
+        <label class="epp-item"><input type="checkbox" value="Guantes estructurales"> Guantes estructurales</label>
+        <label class="epp-item"><input type="checkbox" value="Botas de seguridad"> Botas seguridad</label>
+        <label class="epp-item"><input type="checkbox" value="PASS (alarma personal)"> PASS</label>
+        <label class="epp-item"><input type="checkbox" value="Linterna de cabeza"> Linterna</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Zona Tibia — EPP requerido</label>
+      <div class="epp-grid" id="epp-tibia">
+        <label class="epp-item"><input type="checkbox" value="Casco"> Casco</label>
+        <label class="epp-item"><input type="checkbox" value="Mascarilla N95"> Mascarilla N95</label>
+        <label class="epp-item"><input type="checkbox" value="Traje HazMat nivel B"> Traje HazMat B</label>
+        <label class="epp-item"><input type="checkbox" value="Guantes de nitrilo"> Guantes nitrilo</label>
+        <label class="epp-item"><input type="checkbox" value="Botas de seguridad"> Botas seguridad</label>
+        <label class="epp-item"><input type="checkbox" value="Lentes de protección"> Lentes protección</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Zona Fría — EPP requerido</label>
+      <div class="epp-grid" id="epp-fria">
+        <label class="epp-item"><input type="checkbox" value="Chaleco reflectivo"> Chaleco reflectivo</label>
+        <label class="epp-item"><input type="checkbox" value="Casco"> Casco</label>
+        <label class="epp-item"><input type="checkbox" value="Guantes de trabajo"> Guantes trabajo</label>
+        <label class="epp-item"><input type="checkbox" value="Botas de seguridad"> Botas seguridad</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 5: Señales de emergencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Señales de emergencia y MAYDAY</div>
+    <div class="cols-2">
+      <div class="field"><label>Señal de evacuación por radio</label>
+        <input type="text" id="f-senal_radio" placeholder="Ej: MAYDAY MAYDAY MAYDAY + nombre + posición"></div>
+      <div class="field"><label>Señal acústica de evacuación</label>
+        <input type="text" id="f-senal_acustica" placeholder="Ej: 3 toques largos de bocina"></div>
+      <div class="field"><label>Señal visual de evacuación</label>
+        <input type="text" id="f-senal_visual" placeholder="Ej: Luz estroboscópica roja en PC"></div>
+      <div class="field"><label>Punto de reagrupamiento</label>
+        <input type="text" id="f-punto_reagrupamiento" placeholder="Ej: Parque frente a la escena"></div>
+    </div>
+    <div class="cols-3">
+      <div class="field"><label>Canal MAYDAY</label>
+        <input type="text" id="f-canal_mayday" placeholder="Canal 1 / Frecuencia nacional"></div>
+      <div class="field"><label>Equipo RIT asignado</label>
+        <input type="text" id="f-equipo_rit" placeholder="Ej: CIA-3 / Unidad M-03"></div>
+      <div class="field"><label>Procedimiento MAYDAY específico</label>
+        <input type="text" id="f-proc_mayday_especifico" placeholder="Ej: Activar PASS + transmitir MAYDAY"></div>
+    </div>
+  </div>
+
+  <!-- Sección 6: Puntos de acceso -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Puntos de acceso controlados</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Punto de acceso</th><th>Zona</th><th>Responsable control</th>
+          <th>Observaciones</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="acceso-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Acceso norte por Av. Arequipa"></td>
+            <td><select><option value="">Zona...</option><option>Caliente</option><option>Tibia</option><option>Fría</option></select></td>
+            <td><input type="text" placeholder="Apellido del responsable"></td>
+            <td><input type="text" placeholder="Observaciones"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addAccesoRow()">+ Agregar punto de acceso</button>
+  </div>
+
+  <!-- Sección 7: Checklist de seguridad -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Checklist del plan de seguridad</div>
+    <div class="chk-list" id="seg-checklist">
+      <div class="chk-row"><input type="checkbox" id="sc-0"><label class="chk-txt" for="sc-0">Zonas delimitadas y señalizadas</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-1"><label class="chk-txt" for="sc-1">EPP verificado en todo el personal</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-2"><label class="chk-txt" for="sc-2">Señales de emergencia comunicadas</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-3"><label class="chk-txt" for="sc-3">Equipo RIT en posición</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-4"><label class="chk-txt" for="sc-4">Puntos de acceso controlados</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-5"><label class="chk-txt" for="sc-5">Riesgos comunicados a todos los grupos</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-6"><label class="chk-txt" for="sc-6">Punto de reagrupamiento informado</label></div>
+    </div>
+  </div>
+
+  <!-- Sección 8: Aprobación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">8</div>Preparación y aprobación</div>
+    <div class="cols-2">
+      <div class="field"><label>Preparado por (OS)</label><input type="text" id="f-preparado_por" placeholder="Nombre del Oficial de Seguridad"></div>
+      <div class="field"><label>Fecha de emisión</label><input type="date" id="f-fecha_emision"></div>
+      <div class="field"><label>Aprobado por (CI)</label><input type="text" id="f-aprobado_por" placeholder="Nombre del CI"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-os_nombre'];
+
+  initAnexoPage({
+    numero   : '07',
+    ics      : 'ICS 208',
+    titulo   : 'Plan de Seguridad',
+    anterior : { num:'06', label:'Plan Médico' },
+    siguiente: { num:'08', label:'Personal' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.riesgos = recolectarTabla('riesgos-body',
+        [{key:'riesgo',type:'text'},{key:'probabilidad',type:'select'},
+         {key:'severidad',type:'select'},{key:'control',type:'text'}]);
+      datos.epp_caliente = Array.from(document.querySelectorAll('#epp-caliente input:checked'))
+        .map(cb => cb.value);
+      datos.epp_tibia = Array.from(document.querySelectorAll('#epp-tibia input:checked'))
+        .map(cb => cb.value);
+      datos.epp_fria = Array.from(document.querySelectorAll('#epp-fria input:checked'))
+        .map(cb => cb.value);
+      datos.puntos_acceso = recolectarTabla('acceso-body',
+        [{key:'punto',type:'text'},{key:'zona',type:'select'},
+         {key:'responsable',type:'text'},{key:'obs',type:'text'}]);
+      datos.checklist = Array.from(document.querySelectorAll('#seg-checklist input[type=checkbox]'))
+        .map(cb => ({ label: cb.nextElementSibling?.textContent || '', checked: cb.checked }));
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'riesgos' && Array.isArray(valor)) {
+        document.getElementById('riesgos-body').innerHTML = '';
+        valor.forEach(r => addRiesgoRowConValor(r));
+      }
+      if (campo === 'epp_caliente' && Array.isArray(valor)) {
+        document.querySelectorAll('#epp-caliente input').forEach(cb => { cb.checked = valor.includes(cb.value); });
+      }
+      if (campo === 'epp_tibia' && Array.isArray(valor)) {
+        document.querySelectorAll('#epp-tibia input').forEach(cb => { cb.checked = valor.includes(cb.value); });
+      }
+      if (campo === 'epp_fria' && Array.isArray(valor)) {
+        document.querySelectorAll('#epp-fria input').forEach(cb => { cb.checked = valor.includes(cb.value); });
+      }
+      if (campo === 'puntos_acceso' && Array.isArray(valor)) {
+        document.getElementById('acceso-body').innerHTML = '';
+        valor.forEach(r => addAccesoRowConValor(r));
+      }
+      if (campo === 'checklist' && Array.isArray(valor)) {
+        valor.forEach((item, i) => {
+          const cb = document.getElementById(`sc-${i}`);
+          if (cb) cb.checked = item.checked;
+        });
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  function addRiesgoRow() { addRiesgoRowConValor({}); }
+  function addRiesgoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.riesgo||''}" placeholder="Descripción del riesgo"></td>
+      <td><select>${['','Baja','Media','Alta'].map(t=>`<option ${r.probabilidad===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><select>${['','Leve','Moderada','Grave','Crítica'].map(t=>`<option ${r.severidad===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.control||''}" placeholder="Medida de control"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('riesgos-body').appendChild(tr);
+  }
+
+  function addAccesoRow() { addAccesoRowConValor({}); }
+  function addAccesoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.punto||''}" placeholder="Descripción del punto"></td>
+      <td><select>${['','Caliente','Tibia','Fría'].map(t=>`<option ${r.zona===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.responsable||''}" placeholder="Apellido"></td>
+      <td><input type="text" value="${r.obs||''}" placeholder="Observaciones"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('acceso-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

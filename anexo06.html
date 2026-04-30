@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 06 · Plan Médico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .cols-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .triage-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
+    .triage-card{border-radius:8px;padding:12px;text-align:center;}
+    .t-rojo{background:#FEE2E2;border:1px solid #FCA5A5;}
+    .t-amarillo{background:#FEF9C3;border:1px solid #FDE047;}
+    .t-verde{background:#D1FAE5;border:1px solid #6EE7B7;}
+    .t-negro{background:#F3F4F6;border:1px solid #D1D5DB;}
+    .triage-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+    .t-rojo .triage-label{color:#991B1B;}
+    .t-amarillo .triage-label{color:#92400E;}
+    .t-verde .triage-label{color:#065F46;}
+    .t-negro .triage-label{color:#374151;}
+    .triage-card input{width:100%;padding:6px;border:1px solid rgba(0,0,0,.1);border-radius:6px;font-size:20px;font-weight:700;text-align:center;background:transparent;font-family:var(--fn);}
+    .triage-card input:focus{outline:none;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .chk-list{display:flex;flex-direction:column;gap:6px;}
+    .chk-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--g1);border:1px solid var(--g2);border-radius:6px;}
+    .chk-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--r);cursor:pointer;flex-shrink:0;}
+    .chk-txt{font-size:12px;flex:1;}
+    .chk-row:has(input:checked){background:var(--rl);border-color:#E8A0A0;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Referencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Referencia del incidente</div>
+    <div class="field">
+      <label>Referencia del incidente</label>
+      <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+    </div>
+  </div>
+
+  <!-- Sección 2: Triage -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Conteo de víctimas por triage</div>
+    <div class="triage-grid">
+      <div class="triage-card t-rojo">
+        <div class="triage-label">🔴 Rojo — Inmediato</div>
+        <input type="number" id="f-triage_rojo" placeholder="0" min="0" oninput="calcProg()">
+      </div>
+      <div class="triage-card t-amarillo">
+        <div class="triage-label">🟡 Amarillo — Diferido</div>
+        <input type="number" id="f-triage_amarillo" placeholder="0" min="0">
+      </div>
+      <div class="triage-card t-verde">
+        <div class="triage-label">🟢 Verde — Menor</div>
+        <input type="number" id="f-triage_verde" placeholder="0" min="0">
+      </div>
+      <div class="triage-card t-negro">
+        <div class="triage-label">⚫ Negro — Fallecido</div>
+        <input type="number" id="f-triage_negro" placeholder="0" min="0">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Puesto de Atención Médica (PAM) -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Puesto de Atención Médica (PAM)</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Ubicación del PAM <span class="req">*</span></label>
+        <input type="text" id="f-pam_ubicacion" placeholder="Ej: Zona verde, frente al parque" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Responsable del PAM</label>
+        <input type="text" id="f-pam_responsable" placeholder="Nombre del médico / paramédico">
+      </div>
+      <div class="field">
+        <label>Radio / Canal</label>
+        <input type="text" id="f-pam_radio" placeholder="Canal 3 / Celular">
+      </div>
+    </div>
+    <div class="field">
+      <label>Equipamiento disponible en el PAM</label>
+      <div class="chk-list" id="pam-equip">
+        <div class="chk-row"><input type="checkbox" id="eq-0"><label class="chk-txt" for="eq-0">Botiquín de primeros auxilios avanzado</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-1"><label class="chk-txt" for="eq-1">Desfibrilador (DEA)</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-2"><label class="chk-txt" for="eq-2">Oxígeno medicinal</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-3"><label class="chk-txt" for="eq-3">Camillas de rescate</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-4"><label class="chk-txt" for="eq-4">Collarines cervicales</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-5"><label class="chk-txt" for="eq-5">Inmovilizadores de extremidades</label></div>
+        <div class="chk-row"><input type="checkbox" id="eq-6"><label class="chk-txt" for="eq-6">Equipo de triage (tarjetas START)</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 4: Ambulancias -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Ambulancias en escena</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Unidad</th><th>Institución</th><th>Tripulación</th>
+          <th>Nivel de atención</th><th>Estado</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="amb-body">
+          <tr>
+            <td><input type="text" placeholder="AMB-001"></td>
+            <td><input type="text" placeholder="SAMU / Cruz Roja / CGBVP"></td>
+            <td><input type="text" placeholder="Paramédico + Técnico"></td>
+            <td><select><option value="">Nivel...</option><option>BLS</option><option>ALS</option><option>UCI Móvil</option></select></td>
+            <td><select><option>Disponible</option><option>Ocupada</option><option>En traslado</option><option>Fuera de servicio</option></select></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addAmbRow()">+ Agregar ambulancia</button>
+  </div>
+
+  <!-- Sección 5: Hospitales de referencia -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Hospitales de referencia</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Hospital / Clínica</th><th>Dirección</th><th>Teléfono</th>
+          <th>Nivel</th><th>Capacidad disponible</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="hosp-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Hospital Rebagliati"></td>
+            <td><input type="text" placeholder="Av. Rebagliati 490, Jesús María"></td>
+            <td><input type="text" placeholder="01-265-4321"></td>
+            <td><select><option value="">Nivel...</option><option>I</option><option>II</option><option>III</option></select></td>
+            <td><input type="text" placeholder="Ej: 5 camas UCI"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addHospRow()">+ Agregar hospital</button>
+  </div>
+
+  <!-- Sección 6: Rutas de evacuación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Rutas de evacuación médica</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Ruta</th><th>Destino</th><th>Tiempo estimado</th>
+          <th>Observaciones</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="ruta-body">
+          <tr>
+            <td><input type="text" placeholder="Ruta principal"></td>
+            <td><input type="text" placeholder="Hospital de destino"></td>
+            <td><input type="text" placeholder="Ej: 8 min"></td>
+            <td><input type="text" placeholder="Sin semáforos en ruta"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addRutaRow()">+ Agregar ruta</button>
+    <div class="field" style="margin-top:10px;">
+      <label>Prioridad de evacuación</label>
+      <textarea id="f-prioridad_evacuacion" placeholder="Ej: Prioridad 1 (Rojo) → Hospital Rebagliati. Prioridad 2 (Amarillo) → Clínica San Borja..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 7: Personal médico -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Personal médico asignado</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Nombre</th><th>Especialidad</th><th>Institución</th>
+          <th>Radio / Celular</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="med-body">
+          <tr>
+            <td><input type="text" placeholder="Nombre completo"></td>
+            <td><input type="text" placeholder="Ej: Médico emergenciólogo"></td>
+            <td><input type="text" placeholder="SAMU / CGBVP"></td>
+            <td><input type="text" placeholder="Canal 3 / 999-XXXXX"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addMedRow()">+ Agregar personal médico</button>
+  </div>
+
+  <!-- Sección 8: Checklist médico -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">8</div>Checklist del plan médico</div>
+    <div class="chk-list" id="med-checklist">
+      <div class="chk-row"><input type="checkbox" id="mc-0"><label class="chk-txt" for="mc-0">PAM establecido y señalizado</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-1"><label class="chk-txt" for="mc-1">Ambulancias en posición</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-2"><label class="chk-txt" for="mc-2">Hospitales de referencia notificados</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-3"><label class="chk-txt" for="mc-3">Rutas de evacuación despejadas</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-4"><label class="chk-txt" for="mc-4">Personal médico en posición</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-5"><label class="chk-txt" for="mc-5">Equipamiento PAM verificado</label></div>
+      <div class="chk-row"><input type="checkbox" id="mc-6"><label class="chk-txt" for="mc-6">Comunicaciones médicas probadas</label></div>
+    </div>
+  </div>
+
+  <!-- Sección 9: Aprobación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">9</div>Preparación y aprobación</div>
+    <div class="cols-2">
+      <div class="field"><label>Preparado por</label><input type="text" id="f-preparado_por" placeholder="Nombre del responsable médico"></div>
+      <div class="field"><label>Cargo</label><input type="text" id="f-cargo_prep" placeholder="Ej: Oficial Médico del Incidente"></div>
+      <div class="field"><label>Aprobado por</label><input type="text" id="f-aprobado_por" placeholder="Nombre del CI"></div>
+      <div class="field"><label>Fecha de aprobación</label><input type="date" id="f-fecha_aprobacion"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-pam_ubicacion'];
+
+  initAnexoPage({
+    numero   : '06',
+    ics      : 'ICS 206',
+    titulo   : 'Plan Médico',
+    anterior : { num:'05', label:'Comunicaciones' },
+    siguiente: { num:'07', label:'Seguridad' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.pam_equipamiento = Array.from(document.querySelectorAll('#pam-equip input:checked'))
+        .map(cb => cb.nextElementSibling?.textContent || '');
+      datos.ambulancias = recolectarTabla('amb-body',
+        [{key:'unidad',type:'text'},{key:'institucion',type:'text'},{key:'tripulacion',type:'text'},
+         {key:'nivel',type:'select'},{key:'estado',type:'select'}]);
+      datos.hospitales = recolectarTabla('hosp-body',
+        [{key:'hospital',type:'text'},{key:'direccion',type:'text'},{key:'telefono',type:'text'},
+         {key:'nivel',type:'select'},{key:'capacidad',type:'text'}]);
+      datos.ruta_evacuacion = recolectarTabla('ruta-body',
+        [{key:'ruta',type:'text'},{key:'destino',type:'text'},{key:'tiempo',type:'text'},{key:'obs',type:'text'}]);
+      datos.personal_medico = recolectarTabla('med-body',
+        [{key:'nombre',type:'text'},{key:'especialidad',type:'text'},{key:'institucion',type:'text'},{key:'radio',type:'text'}]);
+      datos.checklist = Array.from(document.querySelectorAll('#med-checklist input[type=checkbox]'))
+        .map(cb => ({ label: cb.nextElementSibling?.textContent || '', checked: cb.checked }));
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'pam_equipamiento' && Array.isArray(valor)) {
+        document.querySelectorAll('#pam-equip input[type=checkbox]').forEach(cb => {
+          cb.checked = valor.includes(cb.nextElementSibling?.textContent?.trim());
+        });
+      }
+      if (campo === 'ambulancias' && Array.isArray(valor)) {
+        document.getElementById('amb-body').innerHTML = '';
+        valor.forEach(r => addAmbRowConValor(r));
+      }
+      if (campo === 'hospitales' && Array.isArray(valor)) {
+        document.getElementById('hosp-body').innerHTML = '';
+        valor.forEach(r => addHospRowConValor(r));
+      }
+      if (campo === 'ruta_evacuacion' && Array.isArray(valor)) {
+        document.getElementById('ruta-body').innerHTML = '';
+        valor.forEach(r => addRutaRowConValor(r));
+      }
+      if (campo === 'personal_medico' && Array.isArray(valor)) {
+        document.getElementById('med-body').innerHTML = '';
+        valor.forEach(r => addMedRowConValor(r));
+      }
+      if (campo === 'checklist' && Array.isArray(valor)) {
+        valor.forEach((item, i) => {
+          const cb = document.getElementById(`mc-${i}`);
+          if (cb) cb.checked = item.checked;
+        });
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  function addAmbRow() { addAmbRowConValor({}); }
+  function addAmbRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.unidad||''}" placeholder="AMB-00X"></td>
+      <td><input type="text" value="${r.institucion||''}" placeholder="Institución"></td>
+      <td><input type="text" value="${r.tripulacion||''}" placeholder="Tripulación"></td>
+      <td><select>${['','BLS','ALS','UCI Móvil'].map(t=>`<option ${r.nivel===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><select>${['Disponible','Ocupada','En traslado','Fuera de servicio'].map(s=>`<option ${r.estado===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('amb-body').appendChild(tr);
+  }
+
+  function addHospRow() { addHospRowConValor({}); }
+  function addHospRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.hospital||''}" placeholder="Nombre del hospital"></td>
+      <td><input type="text" value="${r.direccion||''}" placeholder="Dirección"></td>
+      <td><input type="text" value="${r.telefono||''}" placeholder="Teléfono"></td>
+      <td><select>${['','I','II','III'].map(t=>`<option ${r.nivel===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.capacidad||''}" placeholder="Capacidad"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('hosp-body').appendChild(tr);
+  }
+
+  function addRutaRow() { addRutaRowConValor({}); }
+  function addRutaRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.ruta||''}" placeholder="Descripción de la ruta"></td>
+      <td><input type="text" value="${r.destino||''}" placeholder="Hospital destino"></td>
+      <td><input type="text" value="${r.tiempo||''}" placeholder="Ej: 8 min"></td>
+      <td><input type="text" value="${r.obs||''}" placeholder="Observaciones"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('ruta-body').appendChild(tr);
+  }
+
+  function addMedRow() { addMedRowConValor({}); }
+  function addMedRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.nombre||''}" placeholder="Nombre completo"></td>
+      <td><input type="text" value="${r.especialidad||''}" placeholder="Especialidad"></td>
+      <td><input type="text" value="${r.institucion||''}" placeholder="Institución"></td>
+      <td><input type="text" value="${r.radio||''}" placeholder="Radio / Celular"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('med-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

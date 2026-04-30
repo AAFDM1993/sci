@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 02 · Objetivos del Incidente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .accion-row{display:flex;gap:8px;align-items:center;margin-bottom:7px;}
+    .accion-num{width:24px;height:24px;border-radius:50%;background:var(--rl);color:var(--r);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .accion-row input{flex:1;padding:7px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;}
+    .accion-row input:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .prio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+    .prio-item{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:10px 12px;}
+    .prio-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);margin-bottom:5px;}
+    .prio-item textarea{width:100%;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;font-size:12px;font-family:var(--fn);resize:vertical;min-height:56px;}
+    .prio-item textarea:focus{outline:none;border-color:var(--r);}
+    .restrict-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;}
+    .restrict-row textarea{flex:1;padding:7px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);resize:vertical;min-height:48px;}
+    .restrict-row textarea:focus{outline:none;border-color:var(--r);}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Identificación del período -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Identificación del período operativo</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Referencia del incidente</label>
+        <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>N° de período operativo</label>
+        <input type="number" id="f-periodo_num" placeholder="1" min="1" oninput="calcProg()">
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Inicio del período <span class="req">*</span></label>
+        <input type="datetime-local" id="f-periodo_inicio" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Fin del período <span class="req">*</span></label>
+        <input type="datetime-local" id="f-periodo_fin" oninput="calcProg()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Objetivo general -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Objetivo general del incidente</div>
+    <div class="field">
+      <label>Objetivo general <span class="req">*</span></label>
+      <textarea id="f-objetivo_general" placeholder="Describir el objetivo principal de las operaciones para este período..." oninput="calcProg()"></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 3: Objetivos específicos -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Objetivos específicos</div>
+    <div id="obj-list">
+      <div class="accion-row">
+        <div class="accion-num">1</div>
+        <input type="text" placeholder="Ej: Controlar el fuego en el sector norte antes de las 14:00 hrs">
+        <button class="btn-del" onclick="delObj(this)">×</button>
+      </div>
+      <div class="accion-row">
+        <div class="accion-num">2</div>
+        <input type="text" placeholder="Ej: Evacuar a todas las personas del 3er piso">
+        <button class="btn-del" onclick="delObj(this)">×</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addObj()">+ Agregar objetivo</button>
+  </div>
+
+  <!-- Sección 4: Prioridades -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Prioridades del período</div>
+    <div class="prio-grid">
+      <div class="prio-item">
+        <div class="prio-label">🔴 Vida / Seguridad del personal</div>
+        <textarea id="f-prio_vida" placeholder="Acciones prioritarias para proteger vidas..."></textarea>
+      </div>
+      <div class="prio-item">
+        <div class="prio-label">🟠 Estabilización del incidente</div>
+        <textarea id="f-prio_estabilizacion" placeholder="Acciones para estabilizar la situación..."></textarea>
+      </div>
+      <div class="prio-item">
+        <div class="prio-label">🟡 Protección de la propiedad</div>
+        <textarea id="f-prio_propiedad" placeholder="Medidas para proteger bienes y estructura..."></textarea>
+      </div>
+      <div class="prio-item">
+        <div class="prio-label">🟢 Protección del medio ambiente</div>
+        <textarea id="f-prio_ambiente" placeholder="Medidas ambientales y de contención..."></textarea>
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px;">
+      <label>Modificaciones respecto al período anterior</label>
+      <textarea id="f-prioridades_modificacion" placeholder="Indicar cambios de prioridades respecto al período anterior (si aplica)..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 5: Restricciones y limitaciones -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Restricciones y limitaciones</div>
+    <div id="restrict-list">
+      <div class="restrict-row">
+        <textarea placeholder="Ej: No ingresar al sector sin EPP nivel A"></textarea>
+        <button class="btn-del" onclick="delRestrict(this)">×</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addRestrict()">+ Agregar restricción</button>
+  </div>
+
+  <!-- Sección 6: Coordinación interinstitucional -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Coordinación interinstitucional</div>
+    <div class="field">
+      <label>Agencias / instituciones coordinadas</label>
+      <textarea id="f-coord_interinstitucional" placeholder="Ej: PNP (control de perímetro), SAMU (atención médica), Serenazgo (apoyo logístico)..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 7: Instrucciones de seguridad y PRS -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Instrucciones de seguridad y PRS</div>
+    <div class="field">
+      <label>Instrucciones de seguridad del período</label>
+      <textarea id="f-instrucciones_seguridad" placeholder="Instrucciones específicas de seguridad para este período operativo..."></textarea>
+    </div>
+    <div class="field">
+      <label>Punto de Reunión de Seguridad (PRS)</label>
+      <input type="text" id="f-prs" placeholder="Ej: Esquina de Av. Arequipa con Jr. Tarapacá (zona verde)">
+    </div>
+  </div>
+
+  <!-- Sección 8: Firma del CI -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">8</div>Aprobación del Comandante del Incidente</div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Nombre del CI <span class="req">*</span></label>
+        <input type="text" id="f-ci_nombre" placeholder="Grado + Nombre completo" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Código de bombero</label>
+        <input type="text" id="f-ci_codigo" placeholder="Ej: LIM-01-042">
+      </div>
+      <div class="field">
+        <label>Compañía</label>
+        <input type="text" id="f-ci_compania" placeholder="CIA-1 Miraflores">
+      </div>
+      <div class="field">
+        <label>Fecha de aprobación</label>
+        <input type="date" id="f-ci_fecha">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-periodo_inicio','f-periodo_fin','f-objetivo_general','f-ci_nombre'];
+
+  initAnexoPage({
+    numero   : '02',
+    ics      : 'ICS 202',
+    titulo   : 'Objetivos del Incidente',
+    anterior : { num:'01', label:'Resumen' },
+    siguiente: { num:'03', label:'Organización' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.objetivos_especificos = Array.from(
+        document.querySelectorAll('#obj-list input')
+      ).map(i => i.value.trim()).filter(Boolean);
+      datos.restricciones = Array.from(
+        document.querySelectorAll('#restrict-list textarea')
+      ).map(t => t.value.trim()).filter(Boolean);
+      datos.prioridades = {
+        vida          : document.getElementById('f-prio_vida')?.value || '',
+        estabilizacion: document.getElementById('f-prio_estabilizacion')?.value || '',
+        propiedad     : document.getElementById('f-prio_propiedad')?.value || '',
+        ambiente      : document.getElementById('f-prio_ambiente')?.value || '',
+      };
+      // Limpiar campos de prioridades del objeto principal (ya están en prioridades)
+      delete datos.prio_vida; delete datos.prio_estabilizacion;
+      delete datos.prio_propiedad; delete datos.prio_ambiente;
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'objetivos_especificos' && Array.isArray(valor)) {
+        document.getElementById('obj-list').innerHTML = '';
+        valor.forEach((v, i) => addObjConValor(i + 1, v));
+      }
+      if (campo === 'restricciones' && Array.isArray(valor)) {
+        document.getElementById('restrict-list').innerHTML = '';
+        valor.forEach(v => addRestrictConValor(v));
+      }
+      if (campo === 'prioridades' && typeof valor === 'object') {
+        if (valor.vida)           document.getElementById('f-prio_vida').value           = valor.vida;
+        if (valor.estabilizacion) document.getElementById('f-prio_estabilizacion').value = valor.estabilizacion;
+        if (valor.propiedad)      document.getElementById('f-prio_propiedad').value      = valor.propiedad;
+        if (valor.ambiente)       document.getElementById('f-prio_ambiente').value       = valor.ambiente;
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  function addObj() {
+    const n = document.getElementById('obj-list').children.length + 1;
+    addObjConValor(n, '');
+  }
+  function addObjConValor(n, val) {
+    const div = document.createElement('div');
+    div.className = 'accion-row';
+    div.innerHTML = `<div class="accion-num">${n}</div>
+      <input type="text" value="${escHtml(val)}" placeholder="Describir objetivo específico...">
+      <button class="btn-del" onclick="delObj(this)">×</button>`;
+    document.getElementById('obj-list').appendChild(div);
+  }
+  function delObj(btn) {
+    const list = btn.closest('#obj-list');
+    if (list.children.length > 1) {
+      btn.closest('.accion-row').remove();
+      list.querySelectorAll('.accion-num').forEach((n, i) => n.textContent = i + 1);
+    }
+  }
+
+  function addRestrict() { addRestrictConValor(''); }
+  function addRestrictConValor(val) {
+    const div = document.createElement('div');
+    div.className = 'restrict-row';
+    div.innerHTML = `<textarea placeholder="Describir restricción o limitación...">${escHtml(val)}</textarea>
+      <button class="btn-del" onclick="delRestrict(this)">×</button>`;
+    document.getElementById('restrict-list').appendChild(div);
+  }
+  function delRestrict(btn) {
+    const list = btn.closest('#restrict-list');
+    if (list.children.length > 1) btn.closest('.restrict-row').remove();
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

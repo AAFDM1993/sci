@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 09 · Bitácora del Incidente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .entrada-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;}
+    .entrada-time{flex-shrink:0;width:80px;}
+    .entrada-time input{width:100%;padding:6px 8px;border:1px solid var(--g2);border-radius:6px;font-size:12px;font-family:var(--fn);text-align:center;}
+    .entrada-time input:focus{outline:none;border-color:var(--r);}
+    .entrada-body{flex:1;}
+    .entrada-cat{margin-bottom:6px;}
+    .entrada-cat select{width:100%;padding:5px 8px;border:1px solid var(--g2);border-radius:6px;font-size:12px;font-family:var(--fn);}
+    .entrada-cat select:focus{outline:none;border-color:var(--r);}
+    .entrada-txt textarea{width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:var(--fn);resize:vertical;min-height:52px;line-height:1.4;}
+    .entrada-txt textarea:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .cat-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+    .cat-ops{background:#DBEAFE;color:#1E40AF;}
+    .cat-seg{background:#FEE2E2;color:#991B1B;}
+    .cat-log{background:#FEF3C7;color:#92400E;}
+    .cat-med{background:#D1FAE5;color:#065F46;}
+    .cat-dec{background:#F3E8FF;color:#6B21A8;}
+    .cat-com{background:#F3F4F6;color:#374151;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Encabezado -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Encabezado de la bitácora</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Referencia del incidente</label>
+        <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+      </div>
+      <div class="field">
+        <label>Responsable de la bitácora <span class="req">*</span></label>
+        <input type="text" id="f-responsable" placeholder="Nombre del responsable" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>N° período operativo</label>
+        <input type="number" id="f-periodo_num" placeholder="1" min="1">
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Inicio del período <span class="req">*</span></label>
+        <input type="datetime-local" id="f-inicio_periodo" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Unidad / Sección</label>
+        <input type="text" id="f-unidad_seccion" placeholder="Ej: Sección de Operaciones">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Entradas de la bitácora -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Entradas de la bitácora</div>
+    <div style="font-size:11px;color:var(--gt);margin-bottom:10px;">
+      Registra cronológicamente todos los eventos, decisiones y acciones relevantes del incidente.
+    </div>
+    <div id="entradas-list">
+      <div class="entrada-card">
+        <div class="entrada-time">
+          <div style="font-size:10px;color:var(--gt);text-align:center;margin-bottom:3px;">HORA</div>
+          <input type="time">
+        </div>
+        <div class="entrada-body">
+          <div class="entrada-cat">
+            <select>
+              <option value="Operaciones">Operaciones</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Logística">Logística</option>
+              <option value="Médico">Médico</option>
+              <option value="Decisión CI">Decisión CI</option>
+              <option value="Comunicación">Comunicación</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="entrada-txt">
+            <textarea placeholder="Describir el evento, acción o decisión..."></textarea>
+          </div>
+        </div>
+        <button class="btn-del" onclick="delEntrada(this)">×</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addEntrada()">+ Agregar entrada</button>
+  </div>
+
+  <!-- Sección 3: Recursos del período -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Recursos utilizados en el período</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Recurso / Unidad</th><th>Tipo</th><th>Compañía</th>
+          <th>Hora ingreso</th><th>Hora salida</th><th>Observaciones</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="recursos-body">
+          <tr>
+            <td><input type="text" placeholder="M-01"></td>
+            <td><select><option value="">Tipo...</option><option>Motobomba</option><option>Autobomba</option><option>Rescate</option><option>Cisterna</option><option>Escalera</option><option>Comando</option></select></td>
+            <td><input type="text" placeholder="CIA-X"></td>
+            <td><input type="time"></td>
+            <td><input type="time"></td>
+            <td><input type="text" placeholder="Observaciones"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addRecursoRow()">+ Agregar recurso</button>
+  </div>
+
+  <!-- Sección 4: Narrativo y cierre -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Narrativo y cierre del período</div>
+    <div class="field">
+      <label>Narrativo general del período</label>
+      <textarea id="f-narrativo_general" placeholder="Resumen narrativo de las operaciones del período..."></textarea>
+    </div>
+    <div class="field">
+      <label>Situación al cierre del período</label>
+      <textarea id="f-situacion_cierre" placeholder="Estado del incidente al finalizar el período operativo..."></textarea>
+    </div>
+    <div class="field">
+      <label>Lecciones aprendidas</label>
+      <textarea id="f-lecciones_aprendidas" placeholder="Aspectos a mejorar, buenas prácticas identificadas..."></textarea>
+    </div>
+    <div class="field">
+      <label>Pendientes para el siguiente período</label>
+      <textarea id="f-pendientes" placeholder="Tareas o acciones pendientes para el próximo período operativo..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 5: Elaboración y aprobación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Elaboración y aprobación</div>
+    <div class="cols-2">
+      <div class="field"><label>Elaborado por</label><input type="text" id="f-elaborado_por" placeholder="Nombre del responsable de la bitácora"></div>
+      <div class="field"><label>Cargo</label><input type="text" id="f-cargo_elab" placeholder="Ej: Jefe de Planificación"></div>
+      <div class="field"><label>Aprobado por (CI)</label><input type="text" id="f-aprobado_por" placeholder="Nombre del CI"></div>
+      <div class="field"><label>Fecha de cierre</label><input type="date" id="f-fecha_cierre"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-responsable','f-inicio_periodo'];
+
+  initAnexoPage({
+    numero   : '09',
+    ics      : 'ICS 214',
+    titulo   : 'Bitácora del Incidente',
+    anterior : { num:'08', label:'Personal' },
+    siguiente: { num:'10', label:'Desmovilización' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.entradas = Array.from(document.querySelectorAll('#entradas-list .entrada-card')).map(card => ({
+        hora      : card.querySelector('input[type=time]')?.value || '',
+        categoria : card.querySelector('select')?.value || '',
+        texto     : card.querySelector('textarea')?.value || '',
+      }));
+      datos.recursos_periodo = recolectarTabla('recursos-body',
+        [{key:'recurso',type:'text'},{key:'tipo',type:'select'},{key:'compania',type:'text'},
+         {key:'ingreso',type:'text'},{key:'salida',type:'text'},{key:'obs',type:'text'}]);
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'entradas' && Array.isArray(valor)) {
+        document.getElementById('entradas-list').innerHTML = '';
+        valor.forEach(e => addEntradaConValor(e));
+      }
+      if (campo === 'recursos_periodo' && Array.isArray(valor)) {
+        document.getElementById('recursos-body').innerHTML = '';
+        valor.forEach(r => addRecursoRowConValor(r));
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  const CATEGORIAS = ['Operaciones','Seguridad','Logística','Médico','Decisión CI','Comunicación','Otro'];
+
+  function addEntrada() {
+    const now = new Date();
+    addEntradaConValor({
+      hora: String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0'),
+      categoria: 'Operaciones',
+      texto: '',
+    });
+  }
+
+  function addEntradaConValor(e) {
+    const div = document.createElement('div');
+    div.className = 'entrada-card';
+    div.innerHTML = `
+      <div class="entrada-time">
+        <div style="font-size:10px;color:var(--gt);text-align:center;margin-bottom:3px;">HORA</div>
+        <input type="time" value="${e.hora||''}">
+      </div>
+      <div class="entrada-body">
+        <div class="entrada-cat">
+          <select>
+            ${CATEGORIAS.map(c=>`<option ${e.categoria===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="entrada-txt">
+          <textarea placeholder="Describir el evento, acción o decisión...">${escHtml(e.texto||'')}</textarea>
+        </div>
+      </div>
+      <button class="btn-del" onclick="delEntrada(this)">×</button>`;
+    document.getElementById('entradas-list').appendChild(div);
+  }
+
+  function delEntrada(btn) {
+    const list = document.getElementById('entradas-list');
+    if (list.children.length > 1) btn.closest('.entrada-card').remove();
+  }
+
+  function addRecursoRow() { addRecursoRowConValor({}); }
+  function addRecursoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.recurso||''}" placeholder="Unidad / Recurso"></td>
+      <td><select>${['','Motobomba','Autobomba','Rescate','Cisterna','Escalera','Comando']
+        .map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.compania||''}" placeholder="CIA-X"></td>
+      <td><input type="time" value="${r.ingreso||''}"></td>
+      <td><input type="time" value="${r.salida||''}"></td>
+      <td><input type="text" value="${r.obs||''}" placeholder="Observaciones"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('recursos-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  function escHtml(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

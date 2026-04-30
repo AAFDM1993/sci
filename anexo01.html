@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 01 · Resumen del Incidente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--r);padding:10px 20px;position:sticky;top:0;z-index:100;}
+    .tb-left{display:flex;align-items:center;gap:10px;}
+    .tb-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;color:white;letter-spacing:.08em;}
+    .tb-title{font-family:var(--ft);font-size:17px;font-weight:700;color:white;}
+    .tb-sub{font-size:11px;color:rgba(255,255,255,.7);}
+    .tb-right{display:flex;align-items:center;gap:8px;}
+    .btn-back{padding:5px 12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fn);}
+    .btn-back:hover{background:rgba(255,255,255,.25);}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;}
+    .status-txt{font-size:12px;color:rgba(255,255,255,.85);}
+    .inc-bar{background:white;border-bottom:1px solid var(--g2);padding:8px 20px;display:flex;align-items:center;gap:12px;font-size:12px;min-height:36px;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+    .b-activo{background:#D1FAE5;color:#065F46;}
+    .b-cerrado{background:var(--g2);color:var(--gt);}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    .prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;}
+    .prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+    .field input.err{border-color:#EF4444;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .tipo-badges{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+    .tipo-badge{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .1s;font-family:var(--fn);}
+    .tb-inc{background:#FEE2E2;color:#991B1B;border-color:#FCA5A5;}
+    .tb-res{background:#DBEAFE;color:#1E40AF;border-color:#93C5FD;}
+    .tb-haz{background:#FEF3C7;color:#92400E;border-color:#FCD34D;}
+    .tb-col{background:#F3E8FF;color:#6B21A8;border-color:#C4B5FD;}
+    .tb-ele{background:#ECFDF5;color:#065F46;border-color:#6EE7B7;}
+    .tb-otr{background:var(--g1);color:var(--gt);border-color:var(--g3);}
+    .tipo-badge.sel{transform:scale(1.05);font-weight:700;}
+    .tb-inc.sel{background:#FCA5A5;}
+    .tb-res.sel{background:#93C5FD;}
+    .tb-haz.sel{background:#FCD34D;}
+    .tb-col.sel{background:#C4B5FD;}
+    .tb-ele.sel{background:#6EE7B7;}
+    .tb-otr.sel{background:var(--g2);}
+    .mag-row{display:flex;gap:8px;margin-top:2px;}
+    .mag-btn{flex:1;padding:7px 4px;text-align:center;border:1px solid var(--g2);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .1s;background:white;color:var(--gt);font-family:var(--fn);}
+    .mag-bajo{background:#D1FAE5;border-color:#6EE7B7;color:#065F46;}
+    .mag-medio{background:#FEF3C7;border-color:#FCD34D;color:#92400E;}
+    .mag-alto{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .mag-critico{background:#991B1B;border-color:#7F1D1D;color:white;}
+    .chk-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+    .chk-item{display:flex;align-items:center;gap:5px;background:var(--g1);border:1px solid var(--g2);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;transition:all .1s;font-family:var(--fn);}
+    .chk-item input{width:13px;height:13px;accent-color:var(--r);cursor:pointer;}
+    .chk-item:has(input:checked){background:var(--rl);border-color:#E8A0A0;color:#8B1515;font-weight:600;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .accion-row{display:flex;gap:8px;align-items:center;margin-bottom:7px;}
+    .accion-num{width:24px;height:24px;border-radius:50%;background:var(--rl);color:var(--r);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .accion-row input{flex:1;padding:7px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;}
+    .accion-row input:focus{outline:none;border-color:var(--r);}
+    .ci-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:10px;}
+    .ci-av{width:36px;height:36px;border-radius:50%;background:var(--r);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .form-footer{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:16px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .btn-save{padding:10px 24px;background:var(--r);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:background .12s;display:flex;align-items:center;gap:8px;}
+    .btn-save:hover{background:var(--rd);}
+    .btn-outline{padding:10px 18px;background:transparent;border:1px solid var(--g2);border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--fn);color:#1A1917;}
+    .btn-outline:hover{background:var(--g1);}
+    .btn-next{padding:10px 18px;background:transparent;border:1px solid var(--g2);border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--fn);color:var(--gt);display:flex;align-items:center;gap:6px;margin-left:auto;}
+    .btn-next:hover{background:var(--g1);}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-badge">ICS 201</div>
+    <div>
+      <div class="tb-title">Anexo 01 — Resumen del Incidente</div>
+      <div class="tb-sub">CGBVP · Sistema de Comando de Incidentes</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="status-dot"></div>
+    <span class="status-txt">En registro</span>
+    <button class="btn-back" onclick="window.location.href='dashboard.html'">← Dashboard</button>
+  </div>
+</div>
+
+<div class="inc-bar" id="inc-info-bar">
+  <span style="color:var(--gt);">Cargando incidente...</span>
+</div>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-lbl" id="prog-lbl">0% completado</div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Identificación del incidente</div>
+    <div class="cols-2">
+      <div class="field" style="grid-column:1/-1;">
+        <label>Nombre del incidente <span class="req">*</span></label>
+        <input type="text" id="f-nombre_incidente" placeholder="Ej: Incendio estructural Av. Arequipa 4520" oninput="calcProg()">
+      </div>
+      <div class="field"><label>Fecha de activación <span class="req">*</span></label>
+        <input type="date" id="f-fecha_activacion" oninput="calcProg()"></div>
+      <div class="field"><label>Hora de activación <span class="req">*</span></label>
+        <input type="time" id="f-hora_activacion" oninput="calcProg()"></div>
+      <div class="field"><label>Comandancia <span class="req">*</span></label>
+        <input type="text" id="f-comandancia" placeholder="Ej: Lima" oninput="calcProg()"></div>
+      <div class="field"><label>Compañía(s) interviniente(s) <span class="req">*</span></label>
+        <input type="text" id="f-companias" placeholder="Ej: CIA-1, CIA-3" oninput="calcProg()"></div>
+      <div class="field" style="grid-column:1/-1;"><label>Ubicación exacta <span class="req">*</span></label>
+        <input type="text" id="f-ubicacion_exacta" placeholder="Referencia + Distrito + Provincia + Departamento" oninput="calcProg()"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Tipo de emergencia</div>
+    <div class="field">
+      <label>Seleccionar tipo(s) <span class="req">*</span></label>
+      <div class="tipo-badges" id="tipo-badges">
+        <span class="tipo-badge tb-inc" onclick="toggleTipo(this)">Incendio estructural</span>
+        <span class="tipo-badge tb-inc" onclick="toggleTipo(this)">Incendio vehicular</span>
+        <span class="tipo-badge tb-inc" onclick="toggleTipo(this)">Incendio forestal</span>
+        <span class="tipo-badge tb-res" onclick="toggleTipo(this)">Rescate vehicular</span>
+        <span class="tipo-badge tb-res" onclick="toggleTipo(this)">Rescate en altura</span>
+        <span class="tipo-badge tb-res" onclick="toggleTipo(this)">Rescate acuático</span>
+        <span class="tipo-badge tb-haz" onclick="toggleTipo(this)">HazMat / Mat. peligrosos</span>
+        <span class="tipo-badge tb-col" onclick="toggleTipo(this)">Colapso estructural</span>
+        <span class="tipo-badge tb-ele" onclick="toggleTipo(this)">Emergencia eléctrica</span>
+        <span class="tipo-badge tb-otr" onclick="toggleTipo(this)">Desastre natural</span>
+        <span class="tipo-badge tb-otr" onclick="toggleTipo(this)">Otro</span>
+      </div>
+      <input type="hidden" id="f-tipos_emergencia">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Situación inicial</div>
+    <div class="field"><label>Condiciones observadas al arribo <span class="req">*</span></label>
+      <textarea id="f-condiciones_observadas" placeholder="Descripción de lo observado al llegar: humo, llamas, víctimas visibles, derrames, etc." oninput="calcProg()"></textarea></div>
+    <div class="cols-2">
+      <div class="field"><label>Magnitud del incidente</label>
+        <div class="mag-row">
+          <button class="mag-btn" onclick="setMag(this,'Baja')">Baja</button>
+          <button class="mag-btn" onclick="setMag(this,'Media')">Media</button>
+          <button class="mag-btn" onclick="setMag(this,'Alta')">Alta</button>
+          <button class="mag-btn" onclick="setMag(this,'Crítica')">Crítica</button>
+        </div>
+        <input type="hidden" id="f-magnitud">
+      </div>
+      <div class="field"><label>N° de víctimas estimadas</label>
+        <input type="number" id="f-num_victimas" placeholder="0" min="0"></div>
+    </div>
+    <div class="field"><label>Riesgos presentes</label>
+      <div class="chk-group" id="riesgos-chk">
+        <label class="chk-item"><input type="checkbox" value="Colapso estructural"> Colapso estructural</label>
+        <label class="chk-item"><input type="checkbox" value="Explosión"> Explosión</label>
+        <label class="chk-item"><input type="checkbox" value="Cables energizados"> Cables energizados</label>
+        <label class="chk-item"><input type="checkbox" value="Gas inflamable"> Gas inflamable</label>
+        <label class="chk-item"><input type="checkbox" value="Productos químicos"> Productos químicos</label>
+        <label class="chk-item"><input type="checkbox" value="Propagación"> Propagación</label>
+        <label class="chk-item"><input type="checkbox" value="Acceso difícil"> Acceso difícil</label>
+        <label class="chk-item"><input type="checkbox" value="Personas atrapadas"> Personas atrapadas</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Acciones iniciales realizadas</div>
+    <div class="field"><label>Tipo de ataque inicial</label>
+      <div class="chk-group" id="ataque-chk">
+        <label class="chk-item"><input type="checkbox" value="Ataque ofensivo"> Ataque ofensivo</label>
+        <label class="chk-item"><input type="checkbox" value="Ataque defensivo"> Ataque defensivo</label>
+        <label class="chk-item"><input type="checkbox" value="Evacuación"> Evacuación</label>
+        <label class="chk-item"><input type="checkbox" value="Control de accesos"> Control de accesos</label>
+        <label class="chk-item"><input type="checkbox" value="Triage médico"> Triage médico</label>
+        <label class="chk-item"><input type="checkbox" value="Rescate"> Rescate</label>
+        <label class="chk-item"><input type="checkbox" value="Control de riesgos"> Control de riesgos</label>
+      </div>
+    </div>
+    <div class="field"><label>Acciones específicas realizadas <span class="req">*</span></label>
+      <div id="acciones-list">
+        <div class="accion-row"><div class="accion-num">1</div>
+          <input type="text" placeholder="Ej: Tendido de línea de 1½ pulgada hacia fachada principal" oninput="calcProg()">
+          <button class="btn-del" onclick="delAccion(this)">×</button></div>
+        <div class="accion-row"><div class="accion-num">2</div>
+          <input type="text" placeholder="Ej: Evacuación de 3er y 4to piso">
+          <button class="btn-del" onclick="delAccion(this)">×</button></div>
+        <div class="accion-row"><div class="accion-num">3</div>
+          <input type="text" placeholder="Ej: Corte de energía eléctrica con Enel">
+          <button class="btn-del" onclick="delAccion(this)">×</button></div>
+      </div>
+      <button class="btn-add" onclick="addAccion()">+ Agregar acción</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Recursos en escena</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th style="width:65px;">Unidad</th><th style="width:90px;">Tipo</th>
+          <th style="width:120px;">Compañía</th><th style="width:55px;">Personal</th>
+          <th style="width:160px;">Función asignada</th><th style="width:80px;">Jefe unidad</th>
+          <th style="width:95px;">Estado</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="res-body">
+          <tr>
+            <td><input type="text" placeholder="M-01"></td>
+            <td><select><option value="">Tipo...</option><option>Motobomba</option><option>Autobomba</option><option>Rescate</option><option>Cisterna</option><option>Escalera</option><option>Comando</option></select></td>
+            <td><input type="text" placeholder="CIA-1"></td>
+            <td><input type="number" placeholder="4" min="1"></td>
+            <td><input type="text" placeholder="Ataque interior"></td>
+            <td><input type="text" placeholder="Apellido"></td>
+            <td><select><option>Operando</option><option>En traslado</option><option>En espera</option><option>Fuera de servicio</option></select></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addResRow()">+ Agregar unidad</button>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Comandante del Incidente (CI)</div>
+    <div class="cols-2">
+      <div class="field"><label>Nombre completo <span class="req">*</span></label>
+        <input type="text" id="f-ci_nombre" placeholder="Grado + Nombre completo" oninput="updateCI();calcProg()"></div>
+      <div class="field"><label>Código de bombero</label>
+        <input type="text" id="f-ci_codigo" placeholder="Ej: LIM-01-042"></div>
+      <div class="field"><label>Compañía</label>
+        <input type="text" id="f-ci_compania" placeholder="CIA-1 Miraflores"></div>
+      <div class="field"><label>Canal / Frecuencia radio</label>
+        <input type="text" id="f-ci_radio" placeholder="Canal 1 / 155.340 MHz"></div>
+    </div>
+    <div class="ci-card">
+      <div class="ci-av" id="ci-av">CI</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;" id="ci-nom-disp">Comandante del Incidente</div>
+        <div style="font-size:11px;color:var(--gt);">Responsable del comando unificado del incidente</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">7</div>Observaciones adicionales</div>
+    <div class="field"><label>Notas del CI</label>
+      <textarea id="f-observaciones" placeholder="Cualquier información relevante no contemplada: coordinaciones, decisiones clave, prioridades establecidas..."></textarea></div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn-save" onclick="guardarAnexo()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="white" stroke-width="2"/><path d="M17 21v-8H7v8M7 3v5h8" stroke="white" stroke-width="2"/></svg>
+      Guardar Anexo 01
+    </button>
+    <button class="btn-outline" onclick="limpiarForm()">Limpiar</button>
+    <button class="btn-next" onclick="irAnexo('02')">Siguiente: Anexo 02 — Objetivos →</button>
+  </div>
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script>
+  const REQUIRED = ['f-nombre_incidente','f-fecha_activacion','f-hora_activacion',
+                    'f-comandancia','f-companias','f-ubicacion_exacta',
+                    'f-condiciones_observadas','f-ci_nombre'];
+
+  CGBVP_FORM.init('01');
+
+  // Precargar fecha/hora
+  const now = new Date();
+  document.getElementById('f-fecha_activacion').value = now.toISOString().slice(0,10);
+  document.getElementById('f-hora_activacion').value  =
+    String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+  // Recibir campos JSON del servidor
+  document.addEventListener('cgbvp:campo-json', e => {
+    const {campo, valor} = e.detail;
+    if (campo === 'acciones_realizadas' && Array.isArray(valor)) {
+      document.getElementById('acciones-list').innerHTML = '';
+      valor.forEach((v,i) => addAccionConValor(i+1, v));
+    }
+    if (campo === 'recursos_escena' && Array.isArray(valor)) {
+      document.getElementById('res-body').innerHTML = '';
+      valor.forEach(r => addResRowConValor(r));
+    }
+    if (campo === 'tipos_emergencia') {
+      const tipos = String(valor).split(',').map(t => t.trim());
+      document.querySelectorAll('#tipo-badges .tipo-badge').forEach(b => {
+        if (tipos.includes(b.textContent.trim())) b.classList.add('sel');
+      });
+      document.getElementById('f-tipos_emergencia').value = valor;
+    }
+    if (campo === 'riesgos_presentes') {
+      const vals = String(valor).split(',').map(r => r.trim());
+      document.querySelectorAll('#riesgos-chk input').forEach(cb => {
+        if (vals.includes(cb.value)) cb.checked = true;
+      });
+    }
+    if (campo === 'tipo_ataque') {
+      const vals = String(valor).split(',').map(t => t.trim());
+      document.querySelectorAll('#ataque-chk input').forEach(cb => {
+        if (vals.includes(cb.value)) cb.checked = true;
+      });
+    }
+    if (campo === 'magnitud' && valor) {
+      const map = {Baja:'mag-bajo',Media:'mag-medio',Alta:'mag-alto','Crítica':'mag-critico'};
+      document.querySelectorAll('.mag-btn').forEach(b => {
+        if (b.textContent === valor) { b.className = map[valor] || 'mag-btn'; }
+      });
+      document.getElementById('f-magnitud').value = valor;
+    }
+  });
+
+  function calcProg() {
+    const filled = REQUIRED.filter(id => {
+      const el = document.getElementById(id); return el && el.value.trim();
+    }).length;
+    const pct = Math.round(filled / REQUIRED.length * 100);
+    document.getElementById('prog-fill').style.width = pct+'%';
+    document.getElementById('prog-lbl').textContent  = pct+'% completado';
+  }
+
+  function toggleTipo(el) {
+    el.classList.toggle('sel');
+    document.getElementById('f-tipos_emergencia').value =
+      Array.from(document.querySelectorAll('#tipo-badges .tipo-badge.sel'))
+        .map(b => b.textContent.trim()).join(', ');
+    calcProg();
+  }
+
+  function setMag(btn, val) {
+    document.querySelectorAll('.mag-btn,.mag-bajo,.mag-medio,.mag-alto,.mag-critico')
+      .forEach(b => b.className = 'mag-btn');
+    const map = {Baja:'mag-bajo',Media:'mag-medio',Alta:'mag-alto','Crítica':'mag-critico'};
+    btn.className = map[val];
+    document.getElementById('f-magnitud').value = val;
+  }
+
+  function updateCI() {
+    const nom = document.getElementById('f-ci_nombre').value.trim();
+    document.getElementById('ci-nom-disp').textContent = nom || 'Comandante del Incidente';
+    const p = nom.split(' ').filter(Boolean);
+    document.getElementById('ci-av').textContent =
+      p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : nom.slice(0,2).toUpperCase()||'CI';
+  }
+
+  function addAccion() {
+    const n = document.getElementById('acciones-list').children.length + 1;
+    addAccionConValor(n, '');
+  }
+  function addAccionConValor(n, val) {
+    const div = document.createElement('div');
+    div.className = 'accion-row';
+    div.innerHTML = `<div class="accion-num">${n}</div>
+      <input type="text" value="${escHtml(val)}" placeholder="Describir acción realizada...">
+      <button class="btn-del" onclick="delAccion(this)">×</button>`;
+    document.getElementById('acciones-list').appendChild(div);
+  }
+  function delAccion(btn) {
+    const list = btn.closest('#acciones-list');
+    if (list.children.length > 1) {
+      btn.closest('.accion-row').remove();
+      list.querySelectorAll('.accion-num').forEach((n,i) => n.textContent = i+1);
+    }
+  }
+
+  function addResRow() { addResRowConValor({}); }
+  function addResRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.unidad||''}" placeholder="M-0X"></td>
+      <td><select><option value="">Tipo...</option>
+        ${['Motobomba','Autobomba','Rescate','Cisterna','Escalera','Comando']
+          .map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="text" value="${r.compania||''}" placeholder="CIA-X"></td>
+      <td><input type="number" value="${r.personal||''}" placeholder="4" min="1"></td>
+      <td><input type="text" value="${r.funcion||''}" placeholder="Tarea asignada"></td>
+      <td><input type="text" value="${r.jefe||''}" placeholder="Apellido"></td>
+      <td><select>${['Operando','En traslado','En espera','Fuera de servicio']
+          .map(s=>`<option ${r.estado===s?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('res-body').appendChild(tr);
+  }
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  function recolectarDatos() {
+    const datos = CGBVP_FORM.recolectarDatos();
+    datos.acciones_realizadas = Array.from(
+      document.querySelectorAll('#acciones-list input')
+    ).map(i => i.value.trim()).filter(Boolean);
+    datos.riesgos_presentes = Array.from(
+      document.querySelectorAll('#riesgos-chk input:checked')
+    ).map(cb => cb.value).join(', ');
+    datos.tipo_ataque = Array.from(
+      document.querySelectorAll('#ataque-chk input:checked')
+    ).map(cb => cb.value).join(', ');
+    datos.recursos_escena = Array.from(
+      document.querySelectorAll('#res-body tr')
+    ).map(tr => {
+      const inp = tr.querySelectorAll('input');
+      const sel = tr.querySelectorAll('select');
+      return { unidad:inp[0]?.value, tipo:sel[0]?.value, compania:inp[1]?.value,
+               personal:inp[2]?.value, funcion:inp[3]?.value, jefe:inp[4]?.value,
+               estado:sel[1]?.value };
+    });
+    return datos;
+  }
+
+  async function guardarAnexo() {
+    let valido = true;
+    REQUIRED.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.value.trim()) {
+        el.classList.add('err'); setTimeout(()=>el.classList.remove('err'),2500); valido = false;
+      }
+    });
+    if (!valido) { CGBVP_FORM.showBanner('error','Completa los campos obligatorios'); return; }
+    await CGBVP_FORM.guardar(recolectarDatos(), true);
+  }
+
+  function limpiarForm() {
+    if (!confirm('¿Limpiar todos los campos?')) return;
+    document.querySelectorAll('input:not([type=hidden]),textarea,select')
+      .forEach(el => { el.value=''; el.classList.remove('err'); });
+    document.querySelectorAll('.tipo-badge').forEach(b => b.classList.remove('sel'));
+    document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked=false);
+    document.querySelectorAll('.mag-btn,.mag-bajo,.mag-medio,.mag-alto,.mag-critico')
+      .forEach(b => b.className='mag-btn');
+    document.getElementById('f-tipos_emergencia').value='';
+    document.getElementById('f-magnitud').value='';
+    document.getElementById('ci-av').textContent='CI';
+    document.getElementById('ci-nom-disp').textContent='Comandante del Incidente';
+    calcProg();
+  }
+
+  function irAnexo(num) {
+    window.location.href = `anexo${num}.html?incidente_id=${CGBVP_FORM.getIncidenteId()}`;
+  }
+
+  function escHtml(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

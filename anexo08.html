@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 08 · Registro de Personal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .res-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+    .stat-card{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:10px;text-align:center;}
+    .stat-num{font-family:var(--ft);font-size:28px;font-weight:700;color:var(--r);}
+    .stat-lbl{font-size:10px;color:var(--gt);text-transform:uppercase;letter-spacing:.07em;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Encabezado -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Encabezado del registro</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Referencia del incidente</label>
+        <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+      </div>
+      <div class="field">
+        <label>N° período operativo</label>
+        <input type="number" id="f-periodo_num" placeholder="1" min="1">
+      </div>
+      <div class="field">
+        <label>Responsable del registro <span class="req">*</span></label>
+        <input type="text" id="f-responsable_registro" placeholder="Nombre del responsable" oninput="calcProg()">
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Fecha / hora de inicio <span class="req">*</span></label>
+        <input type="datetime-local" id="f-fecha_inicio" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Punto de control</label>
+        <input type="text" id="f-punto_control" placeholder="Ej: Entrada principal zona fría">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Estadísticas rápidas -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Resumen de personal</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-lbl">Total registrado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-activo" style="color:#065F46;">0</div>
+        <div class="stat-lbl">En escena</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-retirado" style="color:#6B7280;">0</div>
+        <div class="stat-lbl">Retirado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-medico" style="color:#CC1E1E;">0</div>
+        <div class="stat-lbl">Incidencias médicas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 3: Registro de personal -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Registro de personal en escena</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>#</th><th>Nombre completo</th><th>Código</th><th>Compañía</th>
+          <th>Función</th><th>Ingreso</th><th>Salida</th>
+          <th>EPP ✓</th><th>Estado</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="personal-body">
+          <tr>
+            <td style="text-align:center;color:var(--gt);font-size:11px;">1</td>
+            <td><input type="text" placeholder="Apellidos, Nombres"></td>
+            <td><input type="text" placeholder="LIM-01-XXX"></td>
+            <td><input type="text" placeholder="CIA-X"></td>
+            <td><input type="text" placeholder="Ej: Ataque interior"></td>
+            <td><input type="time" placeholder="HH:MM"></td>
+            <td><input type="time" placeholder="HH:MM"></td>
+            <td style="text-align:center;"><input type="checkbox" onchange="actualizarStats()"></td>
+            <td><select onchange="actualizarStats()"><option>En escena</option><option>Retirado</option><option>Incidencia médica</option><option>Descanso</option></select></td>
+            <td><button class="btn-del" onclick="delPersonal(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addPersonalRow()">+ Agregar bombero</button>
+  </div>
+
+  <!-- Sección 4: Incidencias médicas -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Incidencias médicas del personal</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Nombre del afectado</th><th>Hora</th><th>Tipo de incidencia</th>
+          <th>Atención recibida</th><th>Derivado a</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="medico-body">
+          <tr>
+            <td><input type="text" placeholder="Nombre completo"></td>
+            <td><input type="time"></td>
+            <td><select><option value="">Tipo...</option><option>Fatiga / Agotamiento</option><option>Quemadura</option><option>Trauma</option><option>Intoxicación</option><option>Otro</option></select></td>
+            <td><input type="text" placeholder="Primeros auxilios / PAM"></td>
+            <td><input type="text" placeholder="Hospital / Clínica"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addMedicoRow()">+ Agregar incidencia</button>
+  </div>
+
+  <!-- Sección 5: Verificación de EPP -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Verificación de EPP por unidad</div>
+    <div style="overflow-x:auto;">
+      <table class="res-table">
+        <thead><tr>
+          <th>Unidad / Grupo</th><th>Jefe</th><th>N° personal</th>
+          <th>EPP completo</th><th>Observaciones</th><th style="width:28px;"></th>
+        </tr></thead>
+        <tbody id="epp-body">
+          <tr>
+            <td><input type="text" placeholder="Ej: Grupo Ataque"></td>
+            <td><input type="text" placeholder="Apellido del jefe"></td>
+            <td><input type="number" placeholder="4" min="1"></td>
+            <td style="text-align:center;"><input type="checkbox"></td>
+            <td><input type="text" placeholder="Observaciones de EPP"></td>
+            <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addEppRow()">+ Agregar unidad</button>
+  </div>
+
+  <!-- Sección 6: Cierre del registro -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">6</div>Cierre del registro</div>
+    <div class="cols-2">
+      <div class="field"><label>Cerrado por</label><input type="text" id="f-cierre_por" placeholder="Nombre del responsable"></div>
+      <div class="field"><label>Hora de cierre</label><input type="time" id="f-hora_cierre"></div>
+      <div class="field"><label>Aprobado por (CI)</label><input type="text" id="f-aprobado_por" placeholder="Nombre del CI"></div>
+    </div>
+    <div class="field">
+      <label>Observaciones de cierre</label>
+      <textarea id="f-observaciones_cierre" placeholder="Observaciones finales del registro de personal..."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-responsable_registro','f-fecha_inicio'];
+
+  initAnexoPage({
+    numero   : '08',
+    ics      : 'ICS 211',
+    titulo   : 'Registro de Personal',
+    anterior : { num:'07', label:'Seguridad' },
+    siguiente: { num:'09', label:'Bitácora' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      datos.personal = Array.from(document.querySelectorAll('#personal-body tr')).map(tr => {
+        const inp = tr.querySelectorAll('input[type=text],input[type=time]');
+        const chk = tr.querySelector('input[type=checkbox]');
+        const sel = tr.querySelector('select');
+        return { nombre:inp[0]?.value, codigo:inp[1]?.value, compania:inp[2]?.value,
+                 funcion:inp[3]?.value, ingreso:inp[4]?.value, salida:inp[5]?.value,
+                 epp:chk?.checked, estado:sel?.value };
+      });
+      datos.incidencias_medicas = recolectarTabla('medico-body',
+        [{key:'nombre',type:'text'},{key:'hora',type:'text'},{key:'tipo',type:'select'},
+         {key:'atencion',type:'text'},{key:'derivado',type:'text'}]);
+      datos.verificacion_epp = Array.from(document.querySelectorAll('#epp-body tr')).map(tr => {
+        const inp = tr.querySelectorAll('input[type=text],input[type=number]');
+        const chk = tr.querySelector('input[type=checkbox]');
+        return { unidad:inp[0]?.value, jefe:inp[1]?.value, personal:inp[2]?.value,
+                 epp_completo:chk?.checked, obs:inp[3]?.value };
+      });
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'personal' && Array.isArray(valor)) {
+        document.getElementById('personal-body').innerHTML = '';
+        valor.forEach(r => addPersonalRowConValor(r));
+        actualizarStats();
+      }
+      if (campo === 'incidencias_medicas' && Array.isArray(valor)) {
+        document.getElementById('medico-body').innerHTML = '';
+        valor.forEach(r => addMedicoRowConValor(r));
+      }
+      if (campo === 'verificacion_epp' && Array.isArray(valor)) {
+        document.getElementById('epp-body').innerHTML = '';
+        valor.forEach(r => addEppRowConValor(r));
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  function actualizarStats() {
+    const rows = document.querySelectorAll('#personal-body tr');
+    let total = rows.length, activo = 0, retirado = 0, medico = 0;
+    rows.forEach(tr => {
+      const sel = tr.querySelector('select');
+      if (sel?.value === 'En escena') activo++;
+      else if (sel?.value === 'Retirado') retirado++;
+      else if (sel?.value === 'Incidencia médica') medico++;
+    });
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-activo').textContent  = activo;
+    document.getElementById('stat-retirado').textContent= retirado;
+    document.getElementById('stat-medico').textContent  = medico;
+  }
+
+  let personalCount = 1;
+  function addPersonalRow() { addPersonalRowConValor({}); }
+  function addPersonalRowConValor(r) {
+    personalCount++;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center;color:var(--gt);font-size:11px;">${personalCount}</td>
+      <td><input type="text" value="${r.nombre||''}" placeholder="Apellidos, Nombres"></td>
+      <td><input type="text" value="${r.codigo||''}" placeholder="LIM-01-XXX"></td>
+      <td><input type="text" value="${r.compania||''}" placeholder="CIA-X"></td>
+      <td><input type="text" value="${r.funcion||''}" placeholder="Función"></td>
+      <td><input type="time" value="${r.ingreso||''}"></td>
+      <td><input type="time" value="${r.salida||''}"></td>
+      <td style="text-align:center;"><input type="checkbox" ${r.epp?'checked':''} onchange="actualizarStats()"></td>
+      <td><select onchange="actualizarStats()">
+        ${['En escena','Retirado','Incidencia médica','Descanso']
+          .map(s=>`<option ${r.estado===s?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+      <td><button class="btn-del" onclick="delPersonal(this)">×</button></td>`;
+    document.getElementById('personal-body').appendChild(tr);
+    actualizarStats();
+  }
+
+  function delPersonal(btn) {
+    const tbody = document.getElementById('personal-body');
+    if (tbody.children.length > 1) {
+      btn.closest('tr').remove();
+      actualizarStats();
+    }
+  }
+
+  function addMedicoRow() { addMedicoRowConValor({}); }
+  function addMedicoRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.nombre||''}" placeholder="Nombre completo"></td>
+      <td><input type="time" value="${r.hora||''}"></td>
+      <td><select>${['','Fatiga / Agotamiento','Quemadura','Trauma','Intoxicación','Otro']
+        .map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}</select></td>
+      <td><input type="text" value="${r.atencion||''}" placeholder="Atención recibida"></td>
+      <td><input type="text" value="${r.derivado||''}" placeholder="Derivado a"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('medico-body').appendChild(tr);
+  }
+
+  function addEppRow() { addEppRowConValor({}); }
+  function addEppRowConValor(r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.unidad||''}" placeholder="Unidad / Grupo"></td>
+      <td><input type="text" value="${r.jefe||''}" placeholder="Apellido del jefe"></td>
+      <td><input type="number" value="${r.personal||''}" placeholder="4" min="1"></td>
+      <td style="text-align:center;"><input type="checkbox" ${r.epp_completo?'checked':''}></td>
+      <td><input type="text" value="${r.obs||''}" placeholder="Observaciones"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('epp-body').appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

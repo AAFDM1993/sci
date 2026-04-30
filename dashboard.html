@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — SCI · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;
+      --g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;
+      --gt:#6B7280;
+      --fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;
+    }
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+
+    /* Topbar */
+    .topbar{display:flex;align-items:center;justify-content:space-between;background:white;padding:12px 24px;border-bottom:2px solid var(--r);position:sticky;top:0;z-index:100;}
+    .tb-left{display:flex;align-items:center;gap:12px;}
+    .flame{width:30px;height:30px;background:var(--r);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+    .tb-title{font-family:var(--ft);font-size:19px;font-weight:700;color:var(--r);}
+    .tb-divider{width:1px;height:18px;background:var(--g2);}
+    .tb-sub{font-size:12px;color:var(--gt);}
+    .tb-right{display:flex;align-items:center;gap:10px;}
+    .user-chip{display:flex;align-items:center;gap:7px;background:var(--g1);border:1px solid var(--g2);border-radius:20px;padding:5px 11px;font-size:12px;}
+    .user-av{width:24px;height:24px;border-radius:50%;background:var(--r);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+    .role-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+    .rt-admin{background:#FEE2E2;color:#991B1B;}
+    .rt-ci{background:#DBEAFE;color:#1E40AF;}
+    .rt-vol{background:#D1FAE5;color:#065F46;}
+    .btn-logout{padding:5px 13px;border:1px solid var(--g2);border-radius:6px;font-size:12px;cursor:pointer;background:transparent;color:var(--gt);}
+    .btn-logout:hover{background:var(--g2);}
+
+    /* Layout */
+    .layout{display:flex;min-height:calc(100vh - 54px);}
+    .sidebar{width:195px;background:white;border-right:1px solid var(--g2);padding:18px 0;flex-shrink:0;}
+    .main{flex:1;padding:22px 24px;overflow-y:auto;}
+
+    .sb-section{padding:0 10px;margin-bottom:18px;}
+    .sb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--g3);padding:0 8px;margin-bottom:5px;}
+    .sb-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;font-size:13px;color:var(--gt);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:all .1s;}
+    .sb-item:hover{background:var(--g1);color:#1A1917;}
+    .sb-item.active{background:var(--rl);color:var(--r);font-weight:600;}
+    .sb-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.6;flex-shrink:0;}
+    .sb-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--r);color:white;border-radius:10px;padding:1px 6px;}
+
+    /* Secciones */
+    .screen{display:none;}
+    .screen.active{display:block;}
+
+    /* Stats */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+    .stat-card{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:14px 16px;}
+    .sc-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);margin-bottom:5px;}
+    .sc-value{font-family:var(--ft);font-size:28px;font-weight:700;color:#1A1917;line-height:1;}
+    .sc-card-red .sc-value{color:var(--r);}
+    .sc-sub{font-size:11px;color:var(--gt);margin-top:3px;}
+
+    /* Sección header */
+    .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+    .sec-header h2{font-family:var(--ft);font-size:20px;font-weight:600;}
+    .sec-header p{font-size:12px;color:var(--gt);margin-top:2px;}
+    .btn-primary{padding:8px 16px;background:var(--r);color:white;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:background .12s;}
+    .btn-primary:hover{background:var(--rd);}
+    .btn-secondary{padding:7px 14px;background:transparent;border:1px solid var(--g2);border-radius:7px;font-size:12px;cursor:pointer;font-family:var(--fn);color:#1A1917;transition:background .1s;}
+    .btn-secondary:hover{background:var(--g1);}
+
+    /* Anexos grid */
+    .anexos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-bottom:22px;}
+    .anexo-card{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:13px;cursor:pointer;transition:all .12s;position:relative;}
+    .anexo-card:hover{border-color:var(--r);transform:translateY(-1px);box-shadow:0 4px 12px rgba(204,30,30,.08);}
+    .ac-num{font-family:var(--ft);font-size:26px;font-weight:700;color:var(--r);line-height:1;margin-bottom:4px;}
+    .ac-ics{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g3);margin-bottom:3px;}
+    .ac-name{font-size:12px;font-weight:600;color:#1A1917;line-height:1.3;margin-bottom:8px;}
+    .ac-status{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+    .as-ok{background:#D1FAE5;color:#065F46;}
+    .as-pend{background:#FEF3C7;color:#92400E;}
+    .as-empty{background:var(--g2);color:var(--gt);}
+    .ac-loading{opacity:.5;}
+
+    /* Incidentes tabla */
+    .table-wrap{background:white;border:0.5px solid var(--g2);border-radius:10px;overflow:hidden;}
+    .data-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .data-table th{background:var(--g1);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .data-table td{padding:11px 12px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .data-table tbody tr:hover{background:var(--g1);cursor:pointer;}
+    .data-table tbody tr:last-child td{border-bottom:none;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+    .b-activo{background:#D1FAE5;color:#065F46;}
+    .b-cerrado{background:var(--g2);color:var(--gt);}
+    .b-incendio{background:#FEE2E2;color:#991B1B;}
+    .b-rescate{background:#DBEAFE;color:#1E40AF;}
+    .b-hazmat{background:#FEF3C7;color:#92400E;}
+    .b-otro{background:var(--g2);color:var(--gt);}
+
+    /* Modal nuevo incidente */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+    .modal-overlay.show{display:flex;}
+    .modal{background:white;border-radius:12px;padding:24px;width:520px;max-height:85vh;overflow-y:auto;}
+    .modal h3{font-family:var(--ft);font-size:18px;font-weight:600;margin-bottom:16px;color:var(--r);}
+    .form-group{margin-bottom:13px;}
+    .form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gt);margin-bottom:4px;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 11px;border:1px solid var(--g2);border-radius:7px;font-size:13px;font-family:var(--fn);color:#1A1917;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--r);}
+    .form-group textarea{min-height:64px;resize:vertical;line-height:1.4;}
+    .modal-footer{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+
+    /* Loading state */
+    .loading-row{text-align:center;padding:32px;color:var(--gt);font-size:13px;}
+    .spinner-sm{width:18px;height:18px;border:2px solid var(--g2);border-top-color:var(--r);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .toast{position:fixed;bottom:20px;right:20px;padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast-ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;}
+    .toast-err{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;}
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="flame">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C9 7 6 9 6 13a6 6 0 0012 0c0-4-3-6-6-11z" fill="white"/></svg>
+    </div>
+    <span class="tb-title">CGBVP — SCI</span>
+    <div class="tb-divider"></div>
+    <span class="tb-sub" id="tb-sub">Cargando...</span>
+  </div>
+  <div class="tb-right">
+    <div class="user-chip">
+      <div class="user-av" id="user-av">?</div>
+      <span id="user-nombre">–</span>
+      <span class="role-tag" id="user-role-tag">–</span>
+    </div>
+    <button class="btn-logout" onclick="CGBVP_API.logout()">Salir</button>
+  </div>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Principal</div>
+      <button class="sb-item active" onclick="showSection('inicio',this)"><div class="sb-dot"></div>Inicio</button>
+      <button class="sb-item" onclick="showSection('incidentes',this)">
+        <div class="sb-dot"></div>Incidentes
+        <span class="sb-badge" id="badge-activos">0</span>
+      </button>
+      <button class="sb-item" onclick="showSection('anexos',this)"><div class="sb-dot"></div>Anexos SCI</button>
+    </div>
+    <div class="sb-section" id="admin-section" style="display:none;">
+      <div class="sb-label">Administración</div>
+      <button class="sb-item" onclick="showSection('usuarios',this)"><div class="sb-dot"></div>Usuarios</button>
+      <button class="sb-item" onclick="showSection('estadisticas',this)"><div class="sb-dot"></div>Estadísticas</button>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Sistema</div>
+      <button class="sb-item" id="api-status-btn"><div class="sb-dot" id="sb-api-dot" style="background:var(--g3);"></div><span id="sb-api-txt">API...</span></button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── INICIO ── -->
+    <div id="sec-inicio" class="screen active">
+      <div class="sec-header">
+        <div>
+          <h2>Panel de control</h2>
+          <p id="fecha-hoy">Cargando...</p>
+        </div>
+        <button class="btn-primary" onclick="openNuevoIncidente()">+ Nuevo incidente</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card sc-card-red">
+          <div class="sc-label">Incidentes activos</div>
+          <div class="sc-value" id="stat-activos">–</div>
+          <div class="sc-sub" id="stat-activos-sub">Cargando...</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Total este mes</div>
+          <div class="sc-value" id="stat-mes">–</div>
+          <div class="sc-sub">Incidentes registrados</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Usuarios activos</div>
+          <div class="sc-value" id="stat-usuarios">–</div>
+          <div class="sc-sub">En el sistema</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Anexos completados</div>
+          <div class="sc-value" id="stat-anexos">–</div>
+          <div class="sc-sub">Este mes</div>
+        </div>
+      </div>
+
+      <!-- Incidentes recientes -->
+      <div class="sec-header" style="margin-bottom:12px;">
+        <h2 style="font-size:16px;">Incidentes recientes</h2>
+        <button class="btn-secondary" onclick="showSection('incidentes', document.querySelector('.sb-item:nth-child(2))'))">Ver todos</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Incidente</th><th>Tipo</th><th>Compañía</th><th>Fecha</th><th>Estado</th>
+          </tr></thead>
+          <tbody id="tabla-recientes">
+            <tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div>Cargando incidentes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── INCIDENTES ── -->
+    <div id="sec-incidentes" class="screen">
+      <div class="sec-header">
+        <div><h2>Incidentes</h2><p>Todos los incidentes registrados</p></div>
+        <button class="btn-primary" onclick="openNuevoIncidente()">+ Nuevo incidente</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <select id="filtro-estado" onchange="loadIncidentes()" style="padding:7px 10px;border:1px solid var(--g2);border-radius:7px;font-size:12px;font-family:var(--fn);">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="cerrado">Cerrados</option>
+        </select>
+        <select id="filtro-tipo" onchange="loadIncidentes()" style="padding:7px 10px;border:1px solid var(--g2);border-radius:7px;font-size:12px;font-family:var(--fn);">
+          <option value="">Todos los tipos</option>
+          <option value="incendio">Incendio</option>
+          <option value="rescate">Rescate</option>
+          <option value="hazmat">HazMat</option>
+          <option value="desastre">Desastre</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Incidente</th><th>Tipo</th><th>Ubicación</th><th>CI</th><th>Fecha</th><th>Estado</th>
+          </tr></thead>
+          <tbody id="tabla-incidentes">
+            <tr><td colspan="6" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ANEXOS ── -->
+    <div id="sec-anexos" class="screen">
+      <div class="sec-header">
+        <div>
+          <h2>Módulos de Anexos SCI</h2>
+          <p id="anexos-inc-txt">Selecciona un incidente para ver el estado de sus anexos</p>
+        </div>
+        <select id="sel-inc-anexos" onchange="loadAnexosEstado()" style="padding:8px 12px;border:1px solid var(--g2);border-radius:7px;font-size:13px;font-family:var(--fn);max-width:280px;">
+          <option value="">Seleccionar incidente...</option>
+        </select>
+      </div>
+      <div class="anexos-grid" id="anexos-grid">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+
+    <!-- ── USUARIOS (Admin) ── -->
+    <div id="sec-usuarios" class="screen">
+      <div class="sec-header">
+        <div><h2>Gestión de Usuarios</h2><p>Crear, editar y administrar accesos</p></div>
+        <button class="btn-primary" onclick="openNuevoUsuario()">+ Nuevo usuario</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Nombre</th><th>Usuario</th><th>Rol</th><th>Compañía</th><th>Estado</th><th>Acciones</th>
+          </tr></thead>
+          <tbody id="tabla-usuarios">
+            <tr><td colspan="6" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ESTADÍSTICAS (Admin) ── -->
+    <div id="sec-estadisticas" class="screen">
+      <div class="sec-header">
+        <div><h2>Estadísticas operativas</h2><p>Resumen del sistema</p></div>
+        <button class="btn-primary" onclick="loadEstadisticas()">↻ Actualizar</button>
+      </div>
+      <div id="stats-content">
+        <div class="loading-row"><div class="spinner-sm"></div>Cargando estadísticas...</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal nuevo incidente -->
+<div class="modal-overlay" id="modal-incidente">
+  <div class="modal">
+    <h3>🚒 Registrar nuevo incidente</h3>
+    <div class="form-group"><label>Nombre del incidente *</label>
+      <input type="text" id="ni-nombre" placeholder="Ej: Incendio estructural Av. Arequipa 4520"></div>
+    <div class="form-group"><label>Tipo de emergencia *</label>
+      <select id="ni-tipo">
+        <option value="incendio">Incendio estructural</option>
+        <option value="incendio">Incendio vehicular</option>
+        <option value="rescate">Rescate vehicular</option>
+        <option value="rescate">Rescate en altura</option>
+        <option value="hazmat">HazMat / Mat. peligrosos</option>
+        <option value="desastre">Desastre natural</option>
+        <option value="otro">Otro</option>
+      </select></div>
+    <div class="form-group"><label>Ubicación exacta *</label>
+      <input type="text" id="ni-ubicacion" placeholder="Dirección + Distrito + Departamento"></div>
+    <div class="form-group"><label>Descripción inicial</label>
+      <textarea id="ni-desc" placeholder="Condiciones observadas al arribo..."></textarea></div>
+    <div class="form-group"><label>Comandante del Incidente</label>
+      <input type="text" id="ni-ci-nombre" placeholder="Grado + Nombre completo"></div>
+    <div class="form-group"><label>Código bombero CI</label>
+      <input type="text" id="ni-ci-codigo" placeholder="Ej: LIM-01-042"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-incidente')">Cancelar</button>
+      <button class="btn-primary" onclick="crearIncidente()">Crear incidente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="cgbvp-api.js"></script>
+<script>
+  // ── Proteger ruta ──────────────────────────────────────────
+  if (!CGBVP_API.isLoggedIn()) window.location.href = 'index.html';
+
+  const USER = CGBVP_API.getUser();
+
+  const ANEXOS_INFO = [
+    { num:'01', ics:'ICS 201', name:'Resumen del Incidente' },
+    { num:'02', ics:'ICS 202', name:'Objetivos del Incidente' },
+    { num:'03', ics:'ICS 203', name:'Organización' },
+    { num:'04', ics:'ICS 204', name:'Asignación de Recursos' },
+    { num:'05', ics:'ICS 205', name:'Plan de Comunicaciones' },
+    { num:'06', ics:'ICS 206', name:'Plan Médico' },
+    { num:'07', ics:'ICS 208', name:'Plan de Seguridad' },
+    { num:'08', ics:'ICS 211', name:'Registro de Personal' },
+    { num:'09', ics:'ICS 214', name:'Bitácora de Operaciones' },
+    { num:'10', ics:'ICS 221', name:'Desmovilización' },
+    { num:'11', ics:'COMP.', name:'Complementarios' },
+  ];
+
+  // ── Init ──────────────────────────────────────────────────
+  function init() {
+    // Header usuario
+    document.getElementById('user-nombre').textContent = USER.nombre;
+    document.getElementById('user-av').textContent =
+      USER.nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+
+    const rolMap = {
+      administrador      : { label:'ADMIN', cls:'rt-admin' },
+      comandante_incidente: { label:'CI',    cls:'rt-ci'    },
+      voluntario         : { label:'VOL',   cls:'rt-vol'   },
+    };
+    const r = rolMap[USER.rol] || { label:USER.rol, cls:'rt-vol' };
+    const tag = document.getElementById('user-role-tag');
+    tag.textContent = r.label;
+    tag.className   = `role-tag ${r.cls}`;
+
+    // Fecha
+    const now = new Date();
+    document.getElementById('fecha-hoy').textContent =
+      now.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('tb-sub').textContent =
+      `CIA ${USER.compania_id || '–'} · ${now.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})} hrs`;
+
+    // Admin features
+    if (USER.rol === 'administrador') {
+      document.getElementById('admin-section').style.display = 'block';
+    }
+
+    // Cargar datos iniciales
+    checkApiStatus();
+    loadDashboard();
+    renderAnexosGrid();
+    loadIncidenteSelector();
+  }
+
+  // ── Navegación ────────────────────────────────────────────
+  function showSection(name, btn) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+    const sec = document.getElementById('sec-' + name);
+    if (sec) sec.classList.add('active');
+    if (btn && btn.classList) btn.classList.add('active');
+
+    if (name === 'incidentes')   loadIncidentes();
+    if (name === 'usuarios')     loadUsuarios();
+    if (name === 'estadisticas') loadEstadisticas();
+  }
+
+  // ── API Status ────────────────────────────────────────────
+  async function checkApiStatus() {
+    try {
+      const res = await CGBVP_API.ping();
+      const dot = document.getElementById('sb-api-dot');
+      const txt = document.getElementById('sb-api-txt');
+      if (res.ok) { dot.style.background='#22C55E'; txt.textContent='API OK'; }
+      else         { dot.style.background='#EF4444'; txt.textContent='API error'; }
+    } catch { document.getElementById('sb-api-dot').style.background='#EF4444'; }
+  }
+
+  // ── Dashboard ─────────────────────────────────────────────
+  async function loadDashboard() {
+    try {
+      const [incRes, statsRes] = await Promise.all([
+        CGBVP_API.incidentes.getAll({ estado:'activo' }),
+        USER.rol === 'administrador' ? CGBVP_API.stats.get() : Promise.resolve({ ok:false }),
+      ]);
+
+      if (incRes.ok) {
+        const activos = incRes.data.length;
+        document.getElementById('stat-activos').textContent = activos;
+        document.getElementById('stat-activos-sub').textContent =
+          activos === 1 ? '1 incidente en curso' : `${activos} incidentes en curso`;
+        document.getElementById('badge-activos').textContent = activos;
+
+        // Tabla recientes (primeros 5)
+        renderTablaIncidentes(incRes.data.slice(0,5), 'tabla-recientes', false);
+      }
+
+      if (statsRes.ok) {
+        const d = statsRes.data.resumen;
+        document.getElementById('stat-mes').textContent    = d.total_incidentes || 0;
+        document.getElementById('stat-usuarios').textContent = d.total_usuarios  || 0;
+        document.getElementById('stat-anexos').textContent  =
+          Object.values(statsRes.data.cobertura_anexos || {}).reduce((a,b)=>a+b,0);
+      } else {
+        document.getElementById('stat-mes').textContent = '–';
+        document.getElementById('stat-usuarios').textContent = '–';
+        document.getElementById('stat-anexos').textContent = '–';
+      }
+    } catch (e) {
+      document.getElementById('tabla-recientes').innerHTML =
+        `<tr><td colspan="5" class="loading-row">Error al cargar datos</td></tr>`;
+    }
+  }
+
+  // ── Incidentes ────────────────────────────────────────────
+  async function loadIncidentes() {
+    const estado = document.getElementById('filtro-estado')?.value || '';
+    const tipo   = document.getElementById('filtro-tipo')?.value   || '';
+    document.getElementById('tabla-incidentes').innerHTML =
+      `<tr><td colspan="6" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>`;
+    try {
+      const res = await CGBVP_API.incidentes.getAll({ estado, tipo });
+      if (res.ok) renderTablaIncidentes(res.data, 'tabla-incidentes', true);
+    } catch {
+      document.getElementById('tabla-incidentes').innerHTML =
+        `<tr><td colspan="6" class="loading-row">Error al cargar</td></tr>`;
+    }
+  }
+
+  function renderTablaIncidentes(data, tbodyId, extendedCols) {
+    const tbody = document.getElementById(tbodyId);
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="${extendedCols?6:5}" class="loading-row">Sin incidentes registrados</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(i => {
+      const fecha = i.fecha_activacion
+        ? new Date(i.fecha_activacion).toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
+        : '–';
+      const tipoBadge = `<span class="badge b-${i.tipo||'otro'}">${(i.tipo||'otro').toUpperCase()}</span>`;
+      const estadoBadge = `<span class="badge b-${i.estado}">${i.estado === 'activo' ? '● Activo':'✓ Cerrado'}</span>`;
+      if (extendedCols) {
+        return `<tr onclick="abrirAnexos('${i.id}','${i.nombre}')">
+          <td><div style="font-weight:600;font-size:13px;">${i.nombre}</div></td>
+          <td>${tipoBadge}</td>
+          <td style="font-size:12px;color:var(--gt);">${(i.ubicacion||'').slice(0,30)}${i.ubicacion?.length>30?'…':''}</td>
+          <td style="font-size:12px;">${i.ci_nombre||'–'}</td>
+          <td style="font-size:12px;">${fecha}</td>
+          <td>${estadoBadge}</td>
+        </tr>`;
+      }
+      return `<tr onclick="abrirAnexos('${i.id}','${i.nombre}')">
+        <td><div style="font-weight:600;font-size:13px;">${i.nombre}</div>
+            <div style="font-size:11px;color:var(--gt);">${fecha}</div></td>
+        <td>${tipoBadge}</td>
+        <td style="font-size:12px;">${i.compania_id||'–'}</td>
+        <td style="font-size:12px;">${fecha}</td>
+        <td>${estadoBadge}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function abrirAnexos(id, nombre) {
+    document.getElementById('sel-inc-anexos').value = id;
+    document.getElementById('anexos-inc-txt').textContent = nombre;
+    showSection('anexos', document.querySelectorAll('.sb-item')[2]);
+    loadAnexosEstado();
+  }
+
+  // ── Selector incidente para anexos ────────────────────────
+  async function loadIncidenteSelector() {
+    try {
+      const res = await CGBVP_API.incidentes.getAll({ estado:'activo' });
+      if (res.ok) {
+        const sel = document.getElementById('sel-inc-anexos');
+        sel.innerHTML = '<option value="">Seleccionar incidente...</option>' +
+          res.data.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+      }
+    } catch {}
+  }
+
+  // ── Anexos grid ───────────────────────────────────────────
+  function renderAnexosGrid(estados = {}) {
+    const grid = document.getElementById('anexos-grid');
+    grid.innerHTML = ANEXOS_INFO.map(a => {
+      const estado = estados[a.num];
+      let statusHtml = `<span class="ac-status as-empty"><span>—</span> Sin registrar</span>`;
+      if (estado?.completado) statusHtml = `<span class="ac-status as-ok">✓ Completado</span>`;
+      else if (estado?.existe) statusHtml = `<span class="ac-status as-pend">● Pendiente</span>`;
+      return `<div class="anexo-card" onclick="abrirFormAnexo('${a.num}')">
+        <div class="ac-num">${a.num}</div>
+        <div class="ac-ics">${a.ics}</div>
+        <div class="ac-name">${a.name}</div>
+        ${statusHtml}
+      </div>`;
+    }).join('');
+  }
+
+  async function loadAnexosEstado() {
+    const id = document.getElementById('sel-inc-anexos').value;
+    if (!id) { renderAnexosGrid(); return; }
+    // Marcar como cargando
+    document.querySelectorAll('.anexo-card').forEach(c => c.classList.add('ac-loading'));
+    try {
+      const res = await CGBVP_API.anexos.getAll(id);
+      if (res.ok) renderAnexosGrid(res.data);
+    } catch {}
+    document.querySelectorAll('.anexo-card').forEach(c => c.classList.remove('ac-loading'));
+  }
+
+  function abrirFormAnexo(num) {
+    const id = document.getElementById('sel-inc-anexos').value;
+    if (!id) { showToast('Selecciona un incidente primero', 'err'); return; }
+    // En la integración completa redirige al formulario del anexo
+    showToast(`Abriendo Anexo ${num} para incidente seleccionado...`, 'ok');
+    // window.location.href = `anexo${num}.html?incidente_id=${id}`;
+  }
+
+  // ── Nuevo incidente ───────────────────────────────────────
+  function openNuevoIncidente() {
+    document.getElementById('modal-incidente').classList.add('show');
+  }
+
+  async function crearIncidente() {
+    const nombre  = document.getElementById('ni-nombre').value.trim();
+    const tipo    = document.getElementById('ni-tipo').value;
+    const ubic    = document.getElementById('ni-ubicacion').value.trim();
+    const desc    = document.getElementById('ni-desc').value.trim();
+    const ci_nom  = document.getElementById('ni-ci-nombre').value.trim();
+    const ci_cod  = document.getElementById('ni-ci-codigo').value.trim();
+
+    if (!nombre || !ubic) { showToast('Nombre y ubicación son obligatorios', 'err'); return; }
+
+    try {
+      const res = await CGBVP_API.incidentes.create({
+        nombre, tipo, ubicacion: ubic,
+        descripcion_inicial: desc,
+        compania_id   : USER.compania_id,
+        comandancia_id: USER.comandancia_id,
+        ci_nombre     : ci_nom,
+        ci_codigo     : ci_cod,
+        ci_compania   : USER.compania_id,
+      });
+
+      if (res.ok) {
+        showToast(`Incidente "${nombre}" creado correctamente`, 'ok');
+        closeModal('modal-incidente');
+        loadDashboard();
+        loadIncidenteSelector();
+      } else {
+        showToast(res.error || 'Error al crear incidente', 'err');
+      }
+    } catch (e) {
+      showToast('Error de conexión', 'err');
+    }
+  }
+
+  // ── Usuarios ──────────────────────────────────────────────
+  async function loadUsuarios() {
+    document.getElementById('tabla-usuarios').innerHTML =
+      `<tr><td colspan="6" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>`;
+    try {
+      const res = await CGBVP_API.usuarios.getAll();
+      if (!res.ok) throw new Error(res.error);
+      const tbody = document.getElementById('tabla-usuarios');
+      if (!res.data.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-row">Sin usuarios</td></tr>`;
+        return;
+      }
+      const rolLabels = { administrador:'ADMIN', comandante_incidente:'CI', voluntario:'VOL' };
+      tbody.innerHTML = res.data.map(u => `
+        <tr>
+          <td style="font-weight:600;">${u.nombre}</td>
+          <td style="font-size:12px;color:var(--gt);">${u.usuario}</td>
+          <td><span class="badge b-activo">${rolLabels[u.rol]||u.rol}</span></td>
+          <td style="font-size:12px;">${u.compania_id||'–'}</td>
+          <td><span class="badge ${u.activo?'b-activo':'b-cerrado'}">${u.activo?'Activo':'Inactivo'}</span></td>
+          <td>
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick="toggleUsuario('${u.id}',${!u.activo})">
+              ${u.activo?'Desactivar':'Activar'}
+            </button>
+          </td>
+        </tr>`).join('');
+    } catch (e) {
+      document.getElementById('tabla-usuarios').innerHTML =
+        `<tr><td colspan="6" class="loading-row">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function toggleUsuario(id, activo) {
+    const res = await CGBVP_API.usuarios.update({ id, activo });
+    if (res.ok) { showToast('Usuario actualizado', 'ok'); loadUsuarios(); }
+    else showToast(res.error || 'Error', 'err');
+  }
+
+  function openNuevoUsuario() {
+    showToast('Módulo de nuevo usuario disponible en la siguiente versión', 'ok');
+  }
+
+  // ── Estadísticas ──────────────────────────────────────────
+  async function loadEstadisticas() {
+    document.getElementById('stats-content').innerHTML =
+      `<div class="loading-row"><div class="spinner-sm"></div>Cargando estadísticas...</div>`;
+    try {
+      const res = await CGBVP_API.stats.get();
+      if (!res.ok) throw new Error(res.error);
+      const d = res.data;
+      document.getElementById('stats-content').innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card sc-card-red"><div class="sc-label">Total incidentes</div>
+            <div class="sc-value">${d.resumen.total_incidentes}</div></div>
+          <div class="stat-card"><div class="sc-label">Activos</div>
+            <div class="sc-value">${d.resumen.activos}</div></div>
+          <div class="stat-card"><div class="sc-label">Cerrados</div>
+            <div class="sc-value">${d.resumen.cerrados}</div></div>
+          <div class="stat-card"><div class="sc-label">Usuarios activos</div>
+            <div class="sc-value">${d.resumen.total_usuarios}</div></div>
+        </div>
+        <div style="background:white;border-radius:10px;padding:16px;border:0.5px solid var(--g2);">
+          <div style="font-family:var(--ft);font-size:14px;font-weight:600;margin-bottom:12px;">Por tipo de emergencia</div>
+          ${Object.entries(d.por_tipo).map(([tipo,cnt]) =>
+            `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span class="badge b-${tipo}" style="width:80px;text-align:center;">${tipo.toUpperCase()}</span>
+              <div style="flex:1;background:var(--g2);border-radius:4px;height:8px;">
+                <div style="background:var(--r);border-radius:4px;height:8px;width:${Math.round(cnt/d.resumen.total_incidentes*100)}%;"></div>
+              </div>
+              <span style="font-size:12px;font-weight:700;width:24px;text-align:right;">${cnt}</span>
+            </div>`).join('')}
+        </div>`;
+    } catch (e) {
+      document.getElementById('stats-content').innerHTML =
+        `<div class="loading-row">Error: ${e.message}</div>`;
+    }
+  }
+
+  // ── Helpers UI ────────────────────────────────────────────
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  function showToast(msg, type = 'ok') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast toast-${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // Init
+  init();
+</script>
+</body>
+</html>

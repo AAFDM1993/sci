@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Anexo 04 · Asignación de Recursos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;}
+    .form-wrap{max-width:860px;margin:20px auto;padding:0 16px 40px;}
+    .prog-bar{height:4px;background:var(--g2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+    #prog-fill{height:100%;background:var(--r);border-radius:2px;transition:width .3s;width:0%;}
+    #prog-lbl{font-size:11px;color:var(--gt);text-align:right;margin-bottom:14px;}
+    .section{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:18px;margin-bottom:14px;}
+    .sec-title{font-family:var(--ft);font-size:15px;font-weight:600;color:var(--r);border-bottom:1.5px solid var(--rl);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sec-num{background:var(--r);color:white;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+    .field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .req{color:var(--r);margin-left:2px;}
+    .field input,.field select,.field textarea{padding:8px 11px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;width:100%;}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cols-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .res-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .res-table th{background:var(--g1);padding:7px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);border-bottom:1px solid var(--g2);}
+    .res-table td{padding:4px;border-bottom:0.5px solid var(--g2);vertical-align:middle;}
+    .res-table input,.res-table select{width:100%;padding:4px 6px;border:1px solid var(--g2);border-radius:5px;font-size:12px;font-family:var(--fn);color:#1A1917;background:white;}
+    .res-table input:focus,.res-table select:focus{outline:none;border-color:var(--r);}
+    .btn-add{display:flex;align-items:center;gap:6px;padding:6px 12px;margin-top:7px;background:transparent;border:1px dashed var(--g3);border-radius:6px;font-size:12px;color:var(--gt);cursor:pointer;font-family:var(--fn);transition:all .1s;}
+    .btn-add:hover{border-color:var(--r);color:var(--r);background:var(--rl);}
+    .btn-del{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--g3);color:var(--gt);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .1s;flex-shrink:0;}
+    .btn-del:hover{background:#FEE2E2;border-color:#FCA5A5;color:#991B1B;}
+    .grupo-tab{background:var(--g1);border:1px solid var(--g2);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+    .grupo-tab-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .grupo-tab-title{font-family:var(--ft);font-size:13px;font-weight:700;color:#1A1917;flex:1;}
+    .chk-list{display:flex;flex-direction:column;gap:6px;}
+    .chk-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--g1);border:1px solid var(--g2);border-radius:6px;}
+    .chk-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--r);cursor:pointer;flex-shrink:0;}
+    .chk-txt{font-size:12px;flex:1;}
+    .chk-row:has(input:checked){background:var(--rl);border-color:#E8A0A0;}
+  </style>
+</head>
+<body>
+
+<div class="form-wrap">
+  <div class="prog-bar"><div id="prog-fill"></div></div>
+  <div id="prog-lbl">0% completado</div>
+
+  <!-- Sección 1: Encabezado -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">1</div>Encabezado del período</div>
+    <div class="cols-3">
+      <div class="field">
+        <label>Referencia del incidente</label>
+        <input type="text" id="f-incidente_ref" placeholder="INC-XXXXX">
+      </div>
+      <div class="field">
+        <label>N° período operativo <span class="req">*</span></label>
+        <input type="number" id="f-periodo_num" placeholder="1" min="1" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Jefe de Operaciones</label>
+        <input type="text" id="f-jefe_operaciones" placeholder="Grado + Nombre">
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Inicio del período <span class="req">*</span></label>
+        <input type="datetime-local" id="f-periodo_inicio" oninput="calcProg()">
+      </div>
+      <div class="field">
+        <label>Fin del período <span class="req">*</span></label>
+        <input type="datetime-local" id="f-periodo_fin" oninput="calcProg()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección 2: Grupos y recursos asignados -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">2</div>Grupos y recursos asignados</div>
+    <div id="grupos-container">
+      <div class="grupo-tab">
+        <div class="grupo-tab-header">
+          <div class="grupo-tab-title">Grupo 1</div>
+          <button class="btn-del" onclick="delGrupo(this)" title="Eliminar grupo">×</button>
+        </div>
+        <div class="cols-2" style="margin-bottom:8px;">
+          <div class="field">
+            <label>Nombre del grupo / división</label>
+            <input type="text" class="g-nombre" placeholder="Ej: Grupo Ataque Interior">
+          </div>
+          <div class="field">
+            <label>Jefe de grupo</label>
+            <input type="text" class="g-jefe" placeholder="Apellido">
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="res-table">
+            <thead><tr>
+              <th>Unidad</th><th>Tipo</th><th>Compañía</th>
+              <th>Personal</th><th>Tarea asignada</th><th style="width:28px;"></th>
+            </tr></thead>
+            <tbody class="g-recursos">
+              <tr>
+                <td><input type="text" placeholder="M-01"></td>
+                <td><select><option value="">Tipo...</option><option>Motobomba</option><option>Autobomba</option><option>Rescate</option><option>Cisterna</option><option>Escalera</option><option>Comando</option></select></td>
+                <td><input type="text" placeholder="CIA-X"></td>
+                <td><input type="number" placeholder="4" min="1"></td>
+                <td><input type="text" placeholder="Tarea específica"></td>
+                <td><button class="btn-del" onclick="delRow(this)">×</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn-add" onclick="addRecursoRow(this)">+ Agregar unidad al grupo</button>
+      </div>
+    </div>
+    <button class="btn-add" style="margin-top:4px;" onclick="addGrupo()">+ Agregar grupo / división</button>
+  </div>
+
+  <!-- Sección 3: Instrucciones y comunicaciones -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">3</div>Instrucciones operativas</div>
+    <div class="field">
+      <label>Instrucciones de seguridad</label>
+      <textarea id="f-instrucciones_seguridad" placeholder="Instrucciones de seguridad específicas para este período..."></textarea>
+    </div>
+    <div class="cols-2">
+      <div class="field">
+        <label>Punto de reunión de emergencia</label>
+        <input type="text" id="f-punto_reunion_emergencia" placeholder="Ej: Parque frente a la escena">
+      </div>
+      <div class="field">
+        <label>Comunicaciones de grupos</label>
+        <input type="text" id="f-comunicaciones_grupos" placeholder="Ej: Canal 2 para todos los grupos">
+      </div>
+    </div>
+    <div class="field">
+      <label>Equipos especiales requeridos</label>
+      <textarea id="f-equipos_especiales" placeholder="Ej: Equipo de corte hidráulico, cámara termográfica, equipo de respiración autónoma..."></textarea>
+    </div>
+  </div>
+
+  <!-- Sección 4: Checklist de verificación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">4</div>Checklist de verificación</div>
+    <div class="chk-list" id="checklist-container">
+      <div class="chk-row"><input type="checkbox" id="chk-0"><label class="chk-txt" for="chk-0">Todos los grupos tienen jefe asignado</label></div>
+      <div class="chk-row"><input type="checkbox" id="chk-1"><label class="chk-txt" for="chk-1">Recursos verificados y operativos</label></div>
+      <div class="chk-row"><input type="checkbox" id="chk-2"><label class="chk-txt" for="chk-2">Comunicaciones probadas</label></div>
+      <div class="chk-row"><input type="checkbox" id="chk-3"><label class="chk-txt" for="chk-3">EPP completo en todos los grupos</label></div>
+      <div class="chk-row"><input type="checkbox" id="chk-4"><label class="chk-txt" for="chk-4">Instrucciones de seguridad comunicadas</label></div>
+      <div class="chk-row"><input type="checkbox" id="chk-5"><label class="chk-txt" for="chk-5">Punto de reunión de emergencia informado</label></div>
+    </div>
+  </div>
+
+  <!-- Sección 5: Aprobación -->
+  <div class="section">
+    <div class="sec-title"><div class="sec-num">5</div>Preparación y aprobación</div>
+    <div class="cols-2">
+      <div class="field"><label>Preparado por</label><input type="text" id="f-preparado_por" placeholder="Nombre del planificador"></div>
+      <div class="field"><label>Cargo</label><input type="text" id="f-cargo_prep" placeholder="Ej: Jefe de Planificación"></div>
+      <div class="field"><label>Aprobado por</label><input type="text" id="f-aprobado_por" placeholder="Nombre del CI"></div>
+      <div class="field"><label>Fecha de aprobación</label><input type="date" id="f-fecha_aprobacion"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script src="anexo-form.js"></script>
+<script src="anexo-template.js"></script>
+<script>
+  const CAMPOS_REQUERIDOS = ['f-periodo_num','f-periodo_inicio','f-periodo_fin'];
+
+  initAnexoPage({
+    numero   : '04',
+    ics      : 'ICS 204',
+    titulo   : 'Asignación de Recursos',
+    anterior : { num:'03', label:'Organización' },
+    siguiente: { num:'05', label:'Comunicaciones' },
+    required : CAMPOS_REQUERIDOS,
+
+    onGuardar: () => {
+      const datos = CGBVP_FORM.recolectarDatos();
+      // Recolectar grupos con sus recursos
+      datos.grupos = Array.from(document.querySelectorAll('#grupos-container .grupo-tab')).map(g => ({
+        nombre  : g.querySelector('.g-nombre')?.value || '',
+        jefe    : g.querySelector('.g-jefe')?.value || '',
+        recursos: Array.from(g.querySelectorAll('.g-recursos tr')).map(tr => {
+          const inp = tr.querySelectorAll('input');
+          const sel = tr.querySelectorAll('select');
+          return { unidad:inp[0]?.value, tipo:sel[0]?.value, compania:inp[1]?.value,
+                   personal:inp[2]?.value, tarea:inp[3]?.value };
+        }),
+      }));
+      // Checklist
+      datos.checklist = Array.from(document.querySelectorAll('#checklist-container input[type=checkbox]'))
+        .map(cb => ({ label: cb.nextElementSibling?.textContent || '', checked: cb.checked }));
+      return datos;
+    },
+
+    onCargar: ({ campo, valor }) => {
+      if (campo === 'grupos' && Array.isArray(valor)) {
+        document.getElementById('grupos-container').innerHTML = '';
+        valor.forEach(g => addGrupoConValor(g));
+      }
+      if (campo === 'checklist' && Array.isArray(valor)) {
+        valor.forEach((item, i) => {
+          const cb = document.getElementById(`chk-${i}`);
+          if (cb) cb.checked = item.checked;
+        });
+      }
+    },
+  });
+
+  function calcProg() { calcProgStd(CAMPOS_REQUERIDOS); }
+
+  let grupoCount = 1;
+
+  function addGrupo() { addGrupoConValor({ nombre:'', jefe:'', recursos:[{}] }); }
+  function addGrupoConValor(g) {
+    grupoCount++;
+    const div = document.createElement('div');
+    div.className = 'grupo-tab';
+    div.innerHTML = `
+      <div class="grupo-tab-header">
+        <div class="grupo-tab-title">Grupo ${grupoCount}</div>
+        <button class="btn-del" onclick="delGrupo(this)" title="Eliminar grupo">×</button>
+      </div>
+      <div class="cols-2" style="margin-bottom:8px;">
+        <div class="field"><label>Nombre del grupo / división</label>
+          <input type="text" class="g-nombre" value="${escHtml(g.nombre||'')}" placeholder="Nombre del grupo"></div>
+        <div class="field"><label>Jefe de grupo</label>
+          <input type="text" class="g-jefe" value="${escHtml(g.jefe||'')}" placeholder="Apellido"></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="res-table">
+          <thead><tr>
+            <th>Unidad</th><th>Tipo</th><th>Compañía</th>
+            <th>Personal</th><th>Tarea asignada</th><th style="width:28px;"></th>
+          </tr></thead>
+          <tbody class="g-recursos"></tbody>
+        </table>
+      </div>
+      <button class="btn-add" onclick="addRecursoRow(this)">+ Agregar unidad al grupo</button>`;
+    document.getElementById('grupos-container').appendChild(div);
+    const tbody = div.querySelector('.g-recursos');
+    (g.recursos?.length ? g.recursos : [{}]).forEach(r => addRecursoRowConValor(tbody, r));
+  }
+
+  function delGrupo(btn) {
+    const container = document.getElementById('grupos-container');
+    if (container.children.length > 1) btn.closest('.grupo-tab').remove();
+  }
+
+  function addRecursoRow(btn) {
+    const tbody = btn.previousElementSibling.querySelector('.g-recursos');
+    addRecursoRowConValor(tbody, {});
+  }
+  function addRecursoRowConValor(tbody, r) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.unidad||''}" placeholder="M-0X"></td>
+      <td><select><option value="">Tipo...</option>
+        ${['Motobomba','Autobomba','Rescate','Cisterna','Escalera','Comando']
+          .map(t=>`<option ${r.tipo===t?'selected':''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="text" value="${r.compania||''}" placeholder="CIA-X"></td>
+      <td><input type="number" value="${r.personal||''}" placeholder="4" min="1"></td>
+      <td><input type="text" value="${r.tarea||''}" placeholder="Tarea específica"></td>
+      <td><button class="btn-del" onclick="delRow(this)">×</button></td>`;
+    tbody.appendChild(tr);
+  }
+
+  function delRow(btn) {
+    const tr = btn.closest('tr');
+    if (tr.parentElement.children.length > 1) tr.remove();
+  }
+
+  function escHtml(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  calcProg();
+</script>
+</body>
+</html>

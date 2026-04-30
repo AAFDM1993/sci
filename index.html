@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Sistema SCI · Ingreso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;
+      --g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;
+      --fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;
+    }
+    body{font-family:var(--fn);background:var(--g1);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+
+    .login-card{display:flex;width:860px;min-height:520px;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.10);}
+
+    /* Panel izquierdo */
+    .left{width:42%;background:var(--r);padding:44px 36px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+    .left::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(255,255,255,0.03) 28px,rgba(255,255,255,0.03) 29px);}
+    .left-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;color:white;letter-spacing:0.08em;width:fit-content;position:relative;z-index:1;}
+    .shield{width:16px;height:16px;background:rgba(255,255,255,0.9);clip-path:polygon(50% 0%,100% 20%,100% 60%,50% 100%,0% 60%,0% 20%);}
+    .left-title{position:relative;z-index:1;}
+    .left-title h1{font-family:var(--ft);font-size:38px;font-weight:700;color:white;line-height:1.1;margin-bottom:10px;}
+    .left-title p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;}
+    .left-footer{font-size:11px;color:rgba(255,255,255,0.45);position:relative;z-index:1;}
+
+    /* Panel derecho */
+    .right{flex:1;padding:44px 40px;display:flex;flex-direction:column;justify-content:center;}
+    .right h2{font-family:var(--ft);font-size:24px;font-weight:600;color:#1A1917;margin-bottom:4px;}
+    .right .sub{font-size:13px;color:var(--g3);margin-bottom:28px;}
+
+    .form-group{margin-bottom:14px;}
+    .form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin-bottom:5px;}
+    .form-group select,
+    .form-group input{width:100%;padding:10px 13px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);background:white;color:#1A1917;transition:border-color .15s;}
+    .form-group select:focus,
+    .form-group input:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+
+    .btn-login{width:100%;padding:11px;background:var(--r);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:var(--fn);cursor:pointer;margin-top:6px;letter-spacing:.02em;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .btn-login:hover{background:var(--rd);}
+    .btn-login:disabled{background:var(--g3);cursor:not-allowed;}
+
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .error-msg{background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:10px 13px;font-size:13px;color:#991B1B;margin-top:12px;display:none;}
+    .error-msg.show{display:block;}
+
+    .roles-row{display:flex;gap:6px;margin-top:18px;flex-wrap:wrap;}
+    .role-pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;}
+    .rp-admin{background:#FEF3C7;color:#92400E;}
+    .rp-ci{background:#DBEAFE;color:#1E40AF;}
+    .rp-vol{background:#D1FAE5;color:#065F46;}
+
+    .api-status{display:flex;align-items:center;gap:6px;margin-bottom:16px;}
+    .api-dot{width:8px;height:8px;border-radius:50%;background:var(--g3);}
+    .api-dot.ok{background:#22C55E;}
+    .api-dot.err{background:#EF4444;}
+    .api-txt{font-size:11px;color:var(--g3);}
+
+    @media(max-width:640px){
+      .login-card{flex-direction:column;width:95%;min-height:auto;}
+      .left{width:100%;padding:28px 24px 22px;}
+      .left-title h1{font-size:28px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+  <!-- Panel izquierdo -->
+  <div class="left">
+    <div class="left-badge"><div class="shield"></div>CGBVP · SCI</div>
+    <div class="left-title">
+      <h1>Sistema de Comando de Incidentes</h1>
+      <p>Plataforma oficial de gestión de emergencias del Cuerpo General de Bomberos Voluntarios del Perú</p>
+    </div>
+    <div class="left-footer">Versión 1.0 · Uso exclusivo CGBVP · Confidencial</div>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="right">
+    <div class="api-status">
+      <div class="api-dot" id="api-dot"></div>
+      <span class="api-txt" id="api-txt">Verificando conexión...</span>
+    </div>
+
+    <h2>Iniciar sesión</h2>
+    <p class="sub">Ingresa con tus credenciales asignadas</p>
+
+    <div class="form-group">
+      <label>Comandancia</label>
+      <select id="sel-cmd" onchange="loadCompanias()">
+        <option value="">Cargando...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Compañía</label>
+      <select id="sel-cia">
+        <option value="">Selecciona una comandancia primero</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="inp-usuario" placeholder="Código de usuario" autocomplete="username">
+    </div>
+
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <button class="btn-login" id="btn-login" onclick="doLogin()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-txt">Ingresar al sistema</span>
+    </button>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="roles-row">
+      <span class="role-pill rp-admin">Administrador</span>
+      <span class="role-pill rp-ci">Cdte. de Incidente</span>
+      <span class="role-pill rp-vol">Voluntario</span>
+    </div>
+  </div>
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script>
+  // Redirigir si ya hay sesión activa
+  if (CGBVP_API.isLoggedIn()) window.location.href = 'dashboard.html';
+
+  // Verificar conexión con la API
+  async function checkApi() {
+    try {
+      const res = await CGBVP_API.ping();
+      if (res.ok) {
+        document.getElementById('api-dot').className = 'api-dot ok';
+        document.getElementById('api-txt').textContent = `API conectada · v${res.version}`;
+      } else throw new Error();
+    } catch {
+      document.getElementById('api-dot').className = 'api-dot err';
+      document.getElementById('api-txt').textContent = 'Sin conexión con la API';
+    }
+  }
+
+  // Cargar comandancias
+  async function loadComandancias() {
+    const sel = document.getElementById('sel-cmd');
+    try {
+      const res = await CGBVP_API.estructura.getComandancias();
+      if (res.ok) {
+        sel.innerHTML = '<option value="">Seleccionar comandancia...</option>' +
+          res.data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+      }
+    } catch {
+      sel.innerHTML = '<option value="">Error al cargar</option>';
+    }
+  }
+
+  // Cargar compañías según comandancia
+  async function loadCompanias() {
+    const cmd_id = document.getElementById('sel-cmd').value;
+    const sel    = document.getElementById('sel-cia');
+    if (!cmd_id) {
+      sel.innerHTML = '<option value="">Selecciona una comandancia primero</option>';
+      return;
+    }
+    sel.innerHTML = '<option value="">Cargando compañías...</option>';
+    try {
+      const res = await CGBVP_API.estructura.getCompanias(cmd_id);
+      if (res.ok) {
+        sel.innerHTML = '<option value="">Seleccionar compañía...</option>' +
+          res.data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+      }
+    } catch {
+      sel.innerHTML = '<option value="">Error al cargar</option>';
+    }
+  }
+
+  // Login
+  async function doLogin() {
+    const usuario    = document.getElementById('inp-usuario').value.trim();
+    const password   = document.getElementById('inp-pass').value;
+    const compania_id= document.getElementById('sel-cia').value;
+    const errEl      = document.getElementById('error-msg');
+
+    errEl.classList.remove('show');
+
+    if (!usuario || !password) {
+      errEl.textContent = 'Por favor ingresa usuario y contraseña.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    // UI loading
+    const btn = document.getElementById('btn-login');
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('btn-txt').textContent   = 'Verificando...';
+    btn.disabled = true;
+
+    try {
+      const res = await CGBVP_API.login(usuario, password, compania_id);
+
+      if (res.ok) {
+        document.getElementById('btn-txt').textContent = '¡Bienvenido! Redirigiendo...';
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+      } else {
+        errEl.textContent = res.error || 'Credenciales incorrectas.';
+        errEl.classList.add('show');
+        btn.disabled = false;
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('btn-txt').textContent   = 'Ingresar al sistema';
+      }
+    } catch (e) {
+      errEl.textContent = 'Error de conexión. Verifica tu internet.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('btn-txt').textContent   = 'Ingresar al sistema';
+    }
+  }
+
+  // Init
+  checkApi();
+  loadComandancias();
+</script>
+</body>
+</html>

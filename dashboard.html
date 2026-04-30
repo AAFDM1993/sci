@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -438,6 +438,41 @@
   </div>
 </div>
 
+<!-- Modal editar incidente -->
+<div class="modal-overlay" id="modal-editar-inc">
+  <div class="modal">
+    <h3>✏️ Editar incidente</h3>
+    <div style="background:var(--rl);border:1px solid #E8A0A0;border-radius:7px;padding:8px 12px;font-size:12px;color:#8B1515;margin-bottom:14px;">
+      Solo se pueden editar incidentes activos. Los campos marcados con * son obligatorios.
+    </div>
+    <div class="form-group"><label>Nombre del incidente *</label>
+      <input type="text" id="ei-nombre" placeholder="Nombre del incidente"></div>
+    <div class="form-group"><label>Tipo de emergencia *</label>
+      <select id="ei-tipo">
+        <option value="incendio">Incendio estructural</option>
+        <option value="incendio">Incendio vehicular</option>
+        <option value="rescate">Rescate vehicular</option>
+        <option value="rescate">Rescate en altura</option>
+        <option value="hazmat">HazMat / Mat. peligrosos</option>
+        <option value="desastre">Desastre natural</option>
+        <option value="otro">Otro</option>
+      </select></div>
+    <div class="form-group"><label>Ubicación exacta *</label>
+      <input type="text" id="ei-ubicacion" placeholder="Dirección + Distrito + Departamento"></div>
+    <div class="form-group"><label>Descripción</label>
+      <textarea id="ei-desc" placeholder="Descripción del incidente..."></textarea></div>
+    <div class="form-group"><label>Comandante del Incidente</label>
+      <input type="text" id="ei-ci-nombre" placeholder="Grado + Nombre completo"></div>
+    <div class="form-group"><label>Código bombero CI</label>
+      <input type="text" id="ei-ci-codigo" placeholder="Ej: LIM-01-042"></div>
+    <div id="ei-error" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:7px;padding:9px 12px;font-size:12px;color:#991B1B;margin-bottom:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-editar-inc')">Cancelar</button>
+      <button class="btn-primary" id="btn-guardar-inc" onclick="guardarIncidente()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal nuevo / editar usuario -->
 <div class="modal-overlay" id="modal-usuario">
   <div class="modal">
@@ -445,11 +480,25 @@
 
     <div class="form-group">
       <label>Nombre completo *</label>
-      <input type="text" id="mu-nombre" placeholder="Ej: Suboficial Juan Pérez García">
+      <input type="text" id="mu-nombre" placeholder="Ej: Juan Pérez García">
     </div>
-    <div class="form-group">
-      <label>Nombre de usuario *</label>
-      <input type="text" id="mu-usuario" placeholder="Ej: jperez (sin espacios)" autocomplete="off">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group">
+        <label>Grado</label>
+        <select id="mu-grado">
+          <option value="">Sin grado asignado</option>
+          <option value="Seccionario">Seccionario</option>
+          <option value="Sub Teniente">Sub Teniente</option>
+          <option value="Teniente">Teniente</option>
+          <option value="Capitán">Capitán</option>
+          <option value="Teniente Brigadier">Teniente Brigadier</option>
+          <option value="Brigadier">Brigadier</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nombre de usuario *</label>
+        <input type="text" id="mu-usuario" placeholder="Ej: jperez" autocomplete="off">
+      </div>
     </div>
     <div class="form-group" id="mu-pass-row">
       <label>Contraseña *</label>
@@ -537,7 +586,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modal-incidente')">Cancelar</button>
-      <button class="btn-primary" onclick="crearIncidente()">Crear incidente</button>
+      <button class="btn-primary" id="btn-crear-inc" onclick="crearIncidente()">🚒 Crear incidente</button>
     </div>
   </div>
 </div>
@@ -545,7 +594,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="cgbvp-api.js"></script>
+<script src="cgbvp-api.js?v=1.2"></script>
 <script>
   // ── Proteger ruta ──────────────────────────────────────────
   if (!CGBVP_API.isLoggedIn()) window.location.href = 'index.html';
@@ -688,8 +737,12 @@
       const fecha = i.fecha_activacion
         ? new Date(i.fecha_activacion).toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})
         : '–';
-      const tipoBadge = `<span class="badge b-${i.tipo||'otro'}">${(i.tipo||'otro').toUpperCase()}</span>`;
+      const tipoBadge   = `<span class="badge b-${i.tipo||'otro'}">${(i.tipo||'otro').toUpperCase()}</span>`;
       const estadoBadge = `<span class="badge b-${i.estado}">${i.estado === 'activo' ? '● Activo':'✓ Cerrado'}</span>`;
+      const editBtn     = i.estado === 'activo'
+        ? `<button class="btn-secondary" style="padding:3px 10px;font-size:11px;margin-left:4px;"
+             onclick="event.stopPropagation();openEditarIncidente(${JSON.stringify(i).replace(/"/g,'&quot;')})">✏️ Editar</button>`
+        : '';
       if (extendedCols) {
         return `<tr onclick="abrirAnexos('${i.id}','${i.nombre}')">
           <td><div style="font-weight:600;font-size:13px;">${i.nombre}</div></td>
@@ -697,7 +750,7 @@
           <td style="font-size:12px;color:var(--gt);">${(i.ubicacion||'').slice(0,30)}${i.ubicacion?.length>30?'…':''}</td>
           <td style="font-size:12px;">${i.ci_nombre||'–'}</td>
           <td style="font-size:12px;">${fecha}</td>
-          <td>${estadoBadge}</td>
+          <td style="white-space:nowrap;">${estadoBadge}${editBtn}</td>
         </tr>`;
       }
       return `<tr onclick="abrirAnexos('${i.id}','${i.nombre}')">
@@ -706,7 +759,7 @@
         <td>${tipoBadge}</td>
         <td style="font-size:12px;">${i.compania_id||'–'}</td>
         <td style="font-size:12px;">${fecha}</td>
-        <td>${estadoBadge}</td>
+        <td style="white-space:nowrap;">${estadoBadge}${editBtn}</td>
       </tr>`;
     }).join('');
   }
@@ -799,7 +852,11 @@
     }
   }
 
+  let _creandoIncidente = false;
+
   async function crearIncidente() {
+    if (_creandoIncidente) return; // bloquear doble clic
+
     const nombre = document.getElementById('ni-nombre').value.trim();
     const tipo   = document.getElementById('ni-tipo').value;
     const ubic   = document.getElementById('ni-ubicacion').value.trim();
@@ -807,7 +864,6 @@
     const ci_nom = document.getElementById('ni-ci-nombre').value.trim();
     const ci_cod = document.getElementById('ni-ci-codigo').value.trim();
 
-    // Compañía: usar la del usuario o la seleccionada en el modal
     const compania_id    = USER.compania_id || document.getElementById('ni-cia')?.value || '';
     const comandancia_id = USER.comandancia_id || document.getElementById('ni-cia-cmd')?.value || '';
 
@@ -815,6 +871,33 @@
     if (!compania_id && !USER.compania_id) {
       showToast('Selecciona una compañía responsable', 'err'); return;
     }
+
+    // Bloquear y mostrar overlay
+    _creandoIncidente = true;
+    const btn = document.getElementById('btn-crear-inc');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner-sm" style="display:inline-block;"></div> Creando...';
+
+    // Overlay sobre el modal
+    const overlay = document.createElement('div');
+    overlay.id = 'inc-creating-overlay';
+    overlay.style.cssText = `
+      position:absolute;inset:0;background:rgba(255,255,255,.88);
+      border-radius:12px;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:14px;z-index:10;`;
+    overlay.innerHTML = `
+      <div style="width:44px;height:44px;border:4px solid var(--g2);border-top-color:var(--r);
+        border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <div style="font-family:var(--ft);font-size:17px;font-weight:700;color:var(--r);">
+        Creando incidente...
+      </div>
+      <div style="font-size:12px;color:var(--gt);text-align:center;max-width:220px;">
+        Registrando en el sistema y creando carpeta en Drive
+      </div>`;
+    // El modal tiene position relativa para que el overlay lo cubra
+    const modal = document.querySelector('#modal-incidente .modal');
+    modal.style.position = 'relative';
+    modal.appendChild(overlay);
 
     try {
       const res = await CGBVP_API.incidentes.create({
@@ -837,6 +920,71 @@
       }
     } catch (e) {
       showToast('Error de conexión', 'err');
+    } finally {
+      _creandoIncidente = false;
+      btn.disabled = false;
+      btn.innerHTML = '🚒 Crear incidente';
+      overlay.remove();
+    }
+  }
+
+  // ── Editar incidente ──────────────────────────────────────
+  let _editIncId = null;
+
+  function openEditarIncidente(inc) {
+    if (inc.estado !== 'activo') {
+      showToast('Solo se pueden editar incidentes activos', 'err'); return;
+    }
+    _editIncId = inc.id;
+    document.getElementById('ei-nombre').value    = inc.nombre    || '';
+    document.getElementById('ei-ubicacion').value = inc.ubicacion || '';
+    document.getElementById('ei-desc').value      = inc.descripcion_inicial || '';
+    document.getElementById('ei-ci-nombre').value = inc.ci_nombre || '';
+    document.getElementById('ei-ci-codigo').value = inc.ci_codigo || '';
+    document.getElementById('ei-error').style.display = 'none';
+    // Preseleccionar tipo
+    const tipoSel = document.getElementById('ei-tipo');
+    Array.from(tipoSel.options).forEach(o => { o.selected = o.value === inc.tipo; });
+    document.getElementById('modal-editar-inc').classList.add('show');
+  }
+
+  async function guardarIncidente() {
+    const nombre   = document.getElementById('ei-nombre').value.trim();
+    const tipo     = document.getElementById('ei-tipo').value;
+    const ubicacion= document.getElementById('ei-ubicacion').value.trim();
+    const desc     = document.getElementById('ei-desc').value.trim();
+    const ci_nombre= document.getElementById('ei-ci-nombre').value.trim();
+    const ci_codigo= document.getElementById('ei-ci-codigo').value.trim();
+    const errEl    = document.getElementById('ei-error');
+    errEl.style.display = 'none';
+
+    if (!nombre || !ubicacion) {
+      errEl.textContent = 'Nombre y ubicación son obligatorios.';
+      errEl.style.display = 'block'; return;
+    }
+
+    const btn = document.getElementById('btn-guardar-inc');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+      const res = await CGBVP_API.incidentes.update({
+        id: _editIncId, nombre, tipo, ubicacion,
+        descripcion_inicial: desc, ci_nombre, ci_codigo,
+      });
+      if (res.ok) {
+        showToast('Incidente actualizado correctamente', 'ok');
+        closeModal('modal-editar-inc');
+        loadDashboard();
+        loadIncidentes();
+      } else {
+        errEl.textContent = res.error || 'Error al guardar';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      errEl.textContent = 'Error de conexión';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar cambios';
     }
   }
 
@@ -856,8 +1004,9 @@
       const rolBadge  = { administrador:'b-incendio', comandante_incidente:'b-rescate', voluntario:'b-activo' };
       tbody.innerHTML = res.data.map(u => {
         const isActivo = u.activo === true || String(u.activo) === 'true';
+        const gradoTxt = u.grado ? `<div style="font-size:10px;color:var(--gt);">${u.grado}</div>` : '';
         return `<tr>
-          <td style="font-weight:600;">${u.nombre}</td>
+          <td style="font-weight:600;">${u.nombre}${gradoTxt}</td>
           <td style="font-size:12px;color:var(--gt);">${u.usuario}</td>
           <td><span class="badge ${rolBadge[u.rol]||'b-otro'}">${rolLabels[u.rol]||u.rol}</span></td>
           <td style="font-size:12px;">${u.compania_id||'–'}</td>
@@ -891,16 +1040,15 @@
     _editUserId = null;
     document.getElementById('mu-title').textContent    = '👤 Nuevo usuario';
     document.getElementById('mu-btn-save').textContent = 'Crear usuario';
-    // Limpiar campos
     ['mu-nombre','mu-usuario','mu-password','mu-password2'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    document.getElementById('mu-grado').value  = '';
     document.getElementById('mu-rol').value    = 'voluntario';
     document.getElementById('mu-activo').checked = true;
     document.getElementById('mu-pass-row').style.display = 'block';
     document.getElementById('mu-pass2-row').style.display = 'block';
     document.getElementById('mu-pass-hint').style.display = 'none';
-    // Cargar comandancias
     await loadMuComandancias();
     document.getElementById('modal-usuario').classList.add('show');
   }
@@ -911,13 +1059,12 @@
     document.getElementById('mu-btn-save').textContent = 'Guardar cambios';
     document.getElementById('mu-nombre').value  = u.nombre  || '';
     document.getElementById('mu-usuario').value = u.usuario || '';
+    document.getElementById('mu-grado').value   = u.grado   || '';
     document.getElementById('mu-rol').value     = u.rol     || 'voluntario';
     document.getElementById('mu-activo').checked = u.activo === true || String(u.activo) === 'true';
-    // Contraseña opcional en edición
     document.getElementById('mu-password').value  = '';
     document.getElementById('mu-password2').value = '';
     document.getElementById('mu-pass-hint').style.display = 'block';
-    // Cargar comandancias y preseleccionar
     await loadMuComandancias(u.comandancia_id);
     if (u.compania_id) {
       await loadMuCompanias(u.comandancia_id);
@@ -963,6 +1110,7 @@
   async function guardarUsuario() {
     const nombre   = document.getElementById('mu-nombre').value.trim();
     const usuario  = document.getElementById('mu-usuario').value.trim();
+    const grado    = document.getElementById('mu-grado').value;
     const password = document.getElementById('mu-password').value;
     const password2= document.getElementById('mu-password2').value;
     const rol      = document.getElementById('mu-rol').value;
@@ -973,7 +1121,6 @@
 
     errEl.style.display = 'none';
 
-    // Validaciones
     if (!nombre || !usuario) {
       errEl.textContent = 'Nombre y usuario son obligatorios.';
       errEl.style.display = 'block'; return;
@@ -997,15 +1144,13 @@
     try {
       let res;
       if (_editUserId) {
-        // Editar
-        const payload = { id: _editUserId, nombre, rol, activo,
+        const payload = { id: _editUserId, nombre, grado, rol, activo,
           compania_id: cia_id, comandancia_id: cmd_id };
         if (password) payload.password = password;
         res = await CGBVP_API.usuarios.update(payload);
       } else {
-        // Crear
         res = await CGBVP_API.usuarios.create({
-          nombre, usuario, password, rol,
+          nombre, usuario, grado, password, rol,
           compania_id: cia_id, comandancia_id: cmd_id,
         });
       }
@@ -1379,7 +1524,18 @@
   }
 
   // ── Helpers UI ────────────────────────────────────────────
-  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+    // Limpiar overlay de creación si quedó visible
+    const ov = document.getElementById('inc-creating-overlay');
+    if (ov) ov.remove();
+    // Resetear flag y botón si se cerró a la fuerza
+    if (id === 'modal-incidente' && _creandoIncidente) {
+      _creandoIncidente = false;
+      const btn = document.getElementById('btn-crear-inc');
+      if (btn) { btn.disabled = false; btn.innerHTML = '🚒 Crear incidente'; }
+    }
+  }
 
   function showToast(msg, type = 'ok') {
     const t = document.getElementById('toast');

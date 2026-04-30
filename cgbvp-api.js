@@ -8,7 +8,7 @@ const CGBVP_API = (() => {
 
   // ── Configuración ─────────────────────────────────────────
   // Reemplaza con tu URL de despliegue de GAS
-  const API_URL = 'https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycby28q1jnDUUam5E3AnnYcHjj0gaSqT0RXrHYGQDc4XlBN1Tey_YvpOwpWnwP-TCqr8URg/exec';
 
   const STORAGE_KEYS = {
     TOKEN   : 'cgbvp_token',

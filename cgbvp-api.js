@@ -8,7 +8,7 @@ const CGBVP_API = (() => {
 
   // ── Configuración ─────────────────────────────────────────
   // Reemplaza con tu URL de despliegue de GAS
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwFS275ay0pqQCPc65iP7k8-FbXTl9lqZ7xnjx6d7M1dnmK6Ktdt02SOO2FEvQGhRLp1g/exec';
+  const API_URL = 'https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec';
 
   const STORAGE_KEYS = {
     TOKEN   : 'cgbvp_token',
@@ -77,8 +77,14 @@ const CGBVP_API = (() => {
 
   // ── Comandancias y Compañías ──────────────────────────────
   const estructura = {
-    getComandancias : ()               => request('getComandancias', {}, 'GET'),
-    getCompanias    : (comandancia_id) => request('getCompanias', { comandancia_id }, 'GET'),
+    getComandancias    : ()     => request('getComandancias', {}, 'GET'),
+    getCompanias       : (cmd)  => request('getCompanias', { comandancia_id: cmd }, 'GET'),
+    createComandancia  : (data) => request('createComandancia', data),
+    updateComandancia  : (data) => request('updateComandancia', data),
+    deleteComandancia  : (id)   => request('deleteComandancia', { id }),
+    createCompania     : (data) => request('createCompania', data),
+    updateCompania     : (data) => request('updateCompania', data),
+    deleteCompania     : (id)   => request('deleteCompania', { id }),
   };
 
   // ── Incidentes ────────────────────────────────────────────

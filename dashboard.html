@@ -130,7 +130,7 @@
     <span class="tb-sub" id="tb-sub">Cargando...</span>
   </div>
   <div class="tb-right">
-    <div class="user-chip">
+    <div class="user-chip" onclick="window.location.href='perfil.html'" style="cursor:pointer;" title="Ver perfil">
       <div class="user-av" id="user-av">?</div>
       <span id="user-nombre">–</span>
       <span class="role-tag" id="user-role-tag">–</span>
@@ -151,10 +151,12 @@
         <span class="sb-badge" id="badge-activos">0</span>
       </button>
       <button class="sb-item" onclick="showSection('anexos',this)"><div class="sb-dot"></div>Anexos SCI</button>
+      <button class="sb-item" onclick="showSection('chat',this);loadChatSelector()"><div class="sb-dot"></div>Chat</button>
     </div>
     <div class="sb-section" id="admin-section" style="display:none;">
       <div class="sb-label">Administración</div>
       <button class="sb-item" onclick="showSection('usuarios',this)"><div class="sb-dot"></div>Usuarios</button>
+      <button class="sb-item" onclick="showSection('estructura',this)"><div class="sb-dot"></div>Estructura</button>
       <button class="sb-item" onclick="showSection('estadisticas',this)"><div class="sb-dot"></div>Estadísticas</button>
     </div>
     <div class="sb-section">
@@ -283,6 +285,92 @@
       </div>
     </div>
 
+    <!-- ── ESTRUCTURA (Admin) ── -->
+    <div id="sec-estructura" class="screen">
+      <div class="sec-header">
+        <div><h2>Estructura organizacional</h2><p>Comandancias y compañías del CGBVP</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-secondary" onclick="openNuevaComandancia()">+ Comandancia</button>
+          <button class="btn-primary"   onclick="openNuevaCompania()">+ Compañía</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--g2);margin-bottom:16px;">
+        <button id="tab-cmd" onclick="switchEstructuraTab('cmd')"
+          style="padding:8px 18px;border:none;background:transparent;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid var(--r);color:var(--r);font-family:var(--fn);">
+          Comandancias
+        </button>
+        <button id="tab-cia" onclick="switchEstructuraTab('cia')"
+          style="padding:8px 18px;border:none;background:transparent;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--gt);font-family:var(--fn);">
+          Compañías
+        </button>
+      </div>
+
+      <!-- Tabla Comandancias -->
+      <div id="panel-cmd">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>ID</th><th>Nombre</th><th>Región</th><th>Estado</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="tabla-comandancias">
+              <tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabla Compañías -->
+      <div id="panel-cia" style="display:none;">
+        <div style="margin-bottom:10px;">
+          <select id="filtro-cmd-cia" onchange="loadCompaniasTabla()"
+            style="padding:7px 10px;border:1px solid var(--g2);border-radius:7px;font-size:12px;font-family:var(--fn);">
+            <option value="">Todas las comandancias</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>ID</th><th>Nombre</th><th>Código</th><th>Comandancia</th>
+              <th>Dirección</th><th>Teléfono</th><th>Estado</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="tabla-companias">
+              <tr><td colspan="8" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAT (sección dentro de incidente seleccionado) ── -->
+    <div id="sec-chat" class="screen">
+      <div class="sec-header">
+        <div>
+          <h2>Chat del incidente</h2>
+          <p id="chat-inc-nombre">Selecciona un incidente para ver el chat</p>
+        </div>
+        <select id="sel-inc-chat" onchange="iniciarChatDashboard()"
+          style="padding:8px 12px;border:1px solid var(--g2);border-radius:7px;font-size:13px;font-family:var(--fn);max-width:280px;">
+          <option value="">Seleccionar incidente...</option>
+        </select>
+      </div>
+      <div style="background:white;border:0.5px solid var(--g2);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 200px);">
+        <div id="chat-messages-dash"
+          style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:var(--g1);">
+          <div style="text-align:center;color:var(--gt);font-size:13px;padding:32px;">
+            Selecciona un incidente para ver el chat
+          </div>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--g2);display:flex;gap:8px;background:white;">
+          <input type="text" id="chat-input-dash" placeholder="Escribe un mensaje..."
+            style="flex:1;padding:9px 13px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);"
+            onkeydown="if(event.key==='Enter')enviarMensajeDash()">
+          <button class="btn-primary" onclick="enviarMensajeDash()" style="padding:9px 18px;">Enviar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── ESTADÍSTICAS (Admin) ── -->
     <div id="sec-estadisticas" class="screen">
       <div class="sec-header">
@@ -295,6 +383,123 @@
     </div>
 
   </main>
+</div>
+
+<!-- Modal nueva / editar Comandancia -->
+<div class="modal-overlay" id="modal-comandancia">
+  <div class="modal" style="width:420px;">
+    <h3 id="mc-title">🏛️ Nueva Comandancia</h3>
+    <div class="form-group"><label>Nombre *</label>
+      <input type="text" id="mc-nombre" placeholder="Ej: Lima"></div>
+    <div class="form-group"><label>Región</label>
+      <input type="text" id="mc-region" placeholder="Ej: Lima Metropolitana"></div>
+    <div class="form-group" id="mc-activo-row" style="display:none;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;font-weight:600;">
+        <input type="checkbox" id="mc-activo" checked style="width:16px;height:16px;accent-color:var(--r);">
+        Activa
+      </label>
+    </div>
+    <div id="mc-error" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:7px;padding:9px 12px;font-size:12px;color:#991B1B;margin-bottom:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-comandancia')">Cancelar</button>
+      <button class="btn-primary" id="mc-btn-save" onclick="guardarComandancia()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nueva / editar Compañía -->
+<div class="modal-overlay" id="modal-compania">
+  <div class="modal" style="width:480px;">
+    <h3 id="mcia-title">🚒 Nueva Compañía</h3>
+    <div class="form-group"><label>Nombre *</label>
+      <input type="text" id="mcia-nombre" placeholder="Ej: CIA-1 Miraflores"></div>
+    <div class="form-group"><label>Código</label>
+      <input type="text" id="mcia-codigo" placeholder="Ej: CIA1"></div>
+    <div class="form-group"><label>Comandancia *</label>
+      <select id="mcia-cmd">
+        <option value="">Seleccionar comandancia...</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Dirección</label>
+      <input type="text" id="mcia-direccion" placeholder="Ej: Av. Arequipa 2220, Miraflores"></div>
+    <div class="form-group"><label>Teléfono</label>
+      <input type="text" id="mcia-telefono" placeholder="Ej: 01-4452222"></div>
+    <div class="form-group" id="mcia-activo-row" style="display:none;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:13px;font-weight:600;">
+        <input type="checkbox" id="mcia-activo" checked style="width:16px;height:16px;accent-color:var(--r);">
+        Activa
+      </label>
+    </div>
+    <div id="mcia-error" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:7px;padding:9px 12px;font-size:12px;color:#991B1B;margin-bottom:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-compania')">Cancelar</button>
+      <button class="btn-primary" id="mcia-btn-save" onclick="guardarCompania()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal nuevo / editar usuario -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal">
+    <h3 id="mu-title">👤 Nuevo usuario</h3>
+
+    <div class="form-group">
+      <label>Nombre completo *</label>
+      <input type="text" id="mu-nombre" placeholder="Ej: Suboficial Juan Pérez García">
+    </div>
+    <div class="form-group">
+      <label>Nombre de usuario *</label>
+      <input type="text" id="mu-usuario" placeholder="Ej: jperez (sin espacios)" autocomplete="off">
+    </div>
+    <div class="form-group" id="mu-pass-row">
+      <label>Contraseña *</label>
+      <input type="password" id="mu-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+    </div>
+    <div class="form-group" id="mu-pass2-row">
+      <label>Confirmar contraseña *</label>
+      <input type="password" id="mu-password2" placeholder="Repetir contraseña" autocomplete="new-password">
+    </div>
+    <div id="mu-pass-hint" style="display:none;font-size:11px;color:var(--gt);margin:-8px 0 10px;padding:6px 10px;background:var(--g1);border-radius:6px;">
+      💡 Deja la contraseña en blanco para no cambiarla
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-group">
+        <label>Rol *</label>
+        <select id="mu-rol">
+          <option value="voluntario">Voluntario</option>
+          <option value="comandante_incidente">Comandante de Incidente</option>
+          <option value="administrador">Administrador</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:0;text-transform:none;font-size:13px;font-weight:600;">
+          <input type="checkbox" id="mu-activo" checked style="width:16px;height:16px;accent-color:var(--r);">
+          Usuario activo
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Comandancia</label>
+      <select id="mu-cmd" onchange="loadMuCompanias()">
+        <option value="">Sin comandancia (Admin global)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Compañía</label>
+      <select id="mu-cia">
+        <option value="">Sin compañía asignada</option>
+      </select>
+    </div>
+
+    <div id="mu-error" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:7px;padding:9px 12px;font-size:12px;color:#991B1B;margin-bottom:4px;"></div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button class="btn-primary" id="mu-btn-save" onclick="guardarUsuario()">Crear usuario</button>
+    </div>
+  </div>
 </div>
 
 <!-- Modal nuevo incidente -->
@@ -407,6 +612,7 @@
 
     if (name === 'incidentes')   loadIncidentes();
     if (name === 'usuarios')     loadUsuarios();
+    if (name === 'estructura')   loadEstructura();
     if (name === 'estadisticas') loadEstadisticas();
   }
 
@@ -647,20 +853,25 @@
         return;
       }
       const rolLabels = { administrador:'ADMIN', comandante_incidente:'CI', voluntario:'VOL' };
-      tbody.innerHTML = res.data.map(u => `
-        <tr>
+      const rolBadge  = { administrador:'b-incendio', comandante_incidente:'b-rescate', voluntario:'b-activo' };
+      tbody.innerHTML = res.data.map(u => {
+        const isActivo = u.activo === true || String(u.activo) === 'true';
+        return `<tr>
           <td style="font-weight:600;">${u.nombre}</td>
           <td style="font-size:12px;color:var(--gt);">${u.usuario}</td>
-          <td><span class="badge b-activo">${rolLabels[u.rol]||u.rol}</span></td>
+          <td><span class="badge ${rolBadge[u.rol]||'b-otro'}">${rolLabels[u.rol]||u.rol}</span></td>
           <td style="font-size:12px;">${u.compania_id||'–'}</td>
-          <td><span class="badge ${u.activo?'b-activo':'b-cerrado'}">${u.activo?'Activo':'Inactivo'}</span></td>
-          <td>
+          <td><span class="badge ${isActivo?'b-activo':'b-cerrado'}">${isActivo?'Activo':'Inactivo'}</span></td>
+          <td style="display:flex;gap:5px;">
             <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
-              onclick="toggleUsuario('${u.id}',${!u.activo})">
-              ${u.activo?'Desactivar':'Activar'}
+              onclick='openEditarUsuario(${JSON.stringify(u)})'>Editar</button>
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick="toggleUsuario('${u.id}',${!isActivo})">
+              ${isActivo?'Desactivar':'Activar'}
             </button>
           </td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
     } catch (e) {
       document.getElementById('tabla-usuarios').innerHTML =
         `<tr><td colspan="6" class="loading-row">Error: ${e.message}</td></tr>`;
@@ -673,9 +884,463 @@
     else showToast(res.error || 'Error', 'err');
   }
 
-  function openNuevoUsuario() {
-    showToast('Módulo de nuevo usuario disponible en la siguiente versión', 'ok');
+  // ── Nuevo / Editar usuario ────────────────────────────────
+  let _editUserId = null; // null = crear, string = editar
+
+  async function openNuevoUsuario() {
+    _editUserId = null;
+    document.getElementById('mu-title').textContent    = '👤 Nuevo usuario';
+    document.getElementById('mu-btn-save').textContent = 'Crear usuario';
+    // Limpiar campos
+    ['mu-nombre','mu-usuario','mu-password','mu-password2'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('mu-rol').value    = 'voluntario';
+    document.getElementById('mu-activo').checked = true;
+    document.getElementById('mu-pass-row').style.display = 'block';
+    document.getElementById('mu-pass2-row').style.display = 'block';
+    document.getElementById('mu-pass-hint').style.display = 'none';
+    // Cargar comandancias
+    await loadMuComandancias();
+    document.getElementById('modal-usuario').classList.add('show');
   }
+
+  async function openEditarUsuario(u) {
+    _editUserId = u.id;
+    document.getElementById('mu-title').textContent    = '✏️ Editar usuario';
+    document.getElementById('mu-btn-save').textContent = 'Guardar cambios';
+    document.getElementById('mu-nombre').value  = u.nombre  || '';
+    document.getElementById('mu-usuario').value = u.usuario || '';
+    document.getElementById('mu-rol').value     = u.rol     || 'voluntario';
+    document.getElementById('mu-activo').checked = u.activo === true || String(u.activo) === 'true';
+    // Contraseña opcional en edición
+    document.getElementById('mu-password').value  = '';
+    document.getElementById('mu-password2').value = '';
+    document.getElementById('mu-pass-hint').style.display = 'block';
+    // Cargar comandancias y preseleccionar
+    await loadMuComandancias(u.comandancia_id);
+    if (u.compania_id) {
+      await loadMuCompanias(u.comandancia_id);
+      document.getElementById('mu-cia').value = u.compania_id;
+    }
+    document.getElementById('modal-usuario').classList.add('show');
+  }
+
+  async function loadMuComandancias(preselect) {
+    const sel = document.getElementById('mu-cmd');
+    sel.innerHTML = '<option value="">Sin comandancia (Admin)</option>';
+    try {
+      const res = await CGBVP_API.estructura.getComandancias();
+      if (res.ok) {
+        res.data.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id; opt.textContent = c.nombre;
+          if (preselect && c.id === preselect) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        if (preselect) await loadMuCompanias(preselect);
+      }
+    } catch {}
+  }
+
+  async function loadMuCompanias(cmd_id) {
+    const ciaId = cmd_id || document.getElementById('mu-cmd').value;
+    const sel   = document.getElementById('mu-cia');
+    sel.innerHTML = '<option value="">Sin compañía asignada</option>';
+    if (!ciaId) return;
+    try {
+      const res = await CGBVP_API.estructura.getCompanias(ciaId);
+      if (res.ok) {
+        res.data.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id; opt.textContent = c.nombre;
+          sel.appendChild(opt);
+        });
+      }
+    } catch {}
+  }
+
+  async function guardarUsuario() {
+    const nombre   = document.getElementById('mu-nombre').value.trim();
+    const usuario  = document.getElementById('mu-usuario').value.trim();
+    const password = document.getElementById('mu-password').value;
+    const password2= document.getElementById('mu-password2').value;
+    const rol      = document.getElementById('mu-rol').value;
+    const activo   = document.getElementById('mu-activo').checked;
+    const cmd_id   = document.getElementById('mu-cmd').value;
+    const cia_id   = document.getElementById('mu-cia').value;
+    const errEl    = document.getElementById('mu-error');
+
+    errEl.style.display = 'none';
+
+    // Validaciones
+    if (!nombre || !usuario) {
+      errEl.textContent = 'Nombre y usuario son obligatorios.';
+      errEl.style.display = 'block'; return;
+    }
+    if (!_editUserId && !password) {
+      errEl.textContent = 'La contraseña es obligatoria para nuevos usuarios.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password && password !== password2) {
+      errEl.textContent = 'Las contraseñas no coinciden.';
+      errEl.style.display = 'block'; return;
+    }
+    if (password && password.length < 6) {
+      errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+      errEl.style.display = 'block'; return;
+    }
+
+    const btn = document.getElementById('mu-btn-save');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+      let res;
+      if (_editUserId) {
+        // Editar
+        const payload = { id: _editUserId, nombre, rol, activo,
+          compania_id: cia_id, comandancia_id: cmd_id };
+        if (password) payload.password = password;
+        res = await CGBVP_API.usuarios.update(payload);
+      } else {
+        // Crear
+        res = await CGBVP_API.usuarios.create({
+          nombre, usuario, password, rol,
+          compania_id: cia_id, comandancia_id: cmd_id,
+        });
+      }
+
+      if (res.ok) {
+        showToast(_editUserId ? 'Usuario actualizado' : `Usuario "${usuario}" creado`, 'ok');
+        closeModal('modal-usuario');
+        loadUsuarios();
+      } else {
+        errEl.textContent = res.error || 'Error al guardar';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      errEl.textContent = 'Error de conexión: ' + e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = _editUserId ? 'Guardar cambios' : 'Crear usuario';
+    }
+  }
+
+  // ── Estructura: Comandancias y Compañías ─────────────────
+  let _allComandancias = [];
+  let _editCmdId  = null;
+  let _editCiaId  = null;
+
+  async function loadEstructura() {
+    await loadComandanciasTabla();
+    // Poblar filtro de comandancias en tab compañías
+    const filtro = document.getElementById('filtro-cmd-cia');
+    filtro.innerHTML = '<option value="">Todas las comandancias</option>' +
+      _allComandancias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+  }
+
+  function switchEstructuraTab(tab) {
+    const isCmd = tab === 'cmd';
+    document.getElementById('panel-cmd').style.display = isCmd ? 'block' : 'none';
+    document.getElementById('panel-cia').style.display = isCmd ? 'none'  : 'block';
+    document.getElementById('tab-cmd').style.borderBottomColor = isCmd ? 'var(--r)' : 'transparent';
+    document.getElementById('tab-cmd').style.color = isCmd ? 'var(--r)' : 'var(--gt)';
+    document.getElementById('tab-cia').style.borderBottomColor = isCmd ? 'transparent' : 'var(--r)';
+    document.getElementById('tab-cia').style.color = isCmd ? 'var(--gt)' : 'var(--r)';
+    if (!isCmd) loadCompaniasTabla();
+  }
+
+  async function loadComandanciasTabla() {
+    document.getElementById('tabla-comandancias').innerHTML =
+      `<tr><td colspan="5" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>`;
+    try {
+      const res = await CGBVP_API.estructura.getComandancias();
+      if (!res.ok) throw new Error(res.error);
+      _allComandancias = res.data;
+      const tbody = document.getElementById('tabla-comandancias');
+      if (!res.data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="loading-row">Sin comandancias registradas</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = res.data.map(c => {
+        const activo = c.activo === true || String(c.activo) === 'true';
+        return `<tr>
+          <td style="font-size:11px;color:var(--gt);">${c.id}</td>
+          <td style="font-weight:600;">${c.nombre}</td>
+          <td style="font-size:12px;">${c.region||'–'}</td>
+          <td><span class="badge ${activo?'b-activo':'b-cerrado'}">${activo?'Activa':'Inactiva'}</span></td>
+          <td style="display:flex;gap:5px;">
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick='openEditarComandancia(${JSON.stringify(c)})'>Editar</button>
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick="toggleComandancia('${c.id}',${!activo})">
+              ${activo?'Desactivar':'Activar'}
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch (e) {
+      document.getElementById('tabla-comandancias').innerHTML =
+        `<tr><td colspan="5" class="loading-row">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function loadCompaniasTabla() {
+    const cmdId = document.getElementById('filtro-cmd-cia')?.value || '';
+    document.getElementById('tabla-companias').innerHTML =
+      `<tr><td colspan="8" class="loading-row"><div class="spinner-sm"></div>Cargando...</td></tr>`;
+    try {
+      const res = await CGBVP_API.estructura.getCompanias(cmdId);
+      if (!res.ok) throw new Error(res.error);
+      const tbody = document.getElementById('tabla-companias');
+      if (!res.data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-row">Sin compañías registradas</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = res.data.map(c => {
+        const activo = c.activo === true || String(c.activo) === 'true';
+        const cmdNombre = _allComandancias.find(x => x.id === c.comandancia_id)?.nombre || c.comandancia_id || '–';
+        return `<tr>
+          <td style="font-size:11px;color:var(--gt);">${c.id}</td>
+          <td style="font-weight:600;">${c.nombre}</td>
+          <td style="font-size:12px;">${c.codigo||'–'}</td>
+          <td style="font-size:12px;">${cmdNombre}</td>
+          <td style="font-size:12px;">${c.direccion||'–'}</td>
+          <td style="font-size:12px;">${c.telefono||'–'}</td>
+          <td><span class="badge ${activo?'b-activo':'b-cerrado'}">${activo?'Activa':'Inactiva'}</span></td>
+          <td style="display:flex;gap:5px;">
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick='openEditarCompania(${JSON.stringify(c)})'>Editar</button>
+            <button class="btn-secondary" style="padding:3px 10px;font-size:11px;"
+              onclick="toggleCompania('${c.id}',${!activo})">
+              ${activo?'Desactivar':'Activar'}
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch (e) {
+      document.getElementById('tabla-companias').innerHTML =
+        `<tr><td colspan="8" class="loading-row">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  // ── Modales Comandancia ───────────────────────────────────
+  function openNuevaComandancia() {
+    _editCmdId = null;
+    document.getElementById('mc-title').textContent    = '🏛️ Nueva Comandancia';
+    document.getElementById('mc-btn-save').textContent = 'Crear';
+    document.getElementById('mc-nombre').value  = '';
+    document.getElementById('mc-region').value  = '';
+    document.getElementById('mc-activo').checked = true;
+    document.getElementById('mc-activo-row').style.display = 'none';
+    document.getElementById('mc-error').style.display = 'none';
+    document.getElementById('modal-comandancia').classList.add('show');
+  }
+
+  function openEditarComandancia(c) {
+    _editCmdId = c.id;
+    document.getElementById('mc-title').textContent    = '✏️ Editar Comandancia';
+    document.getElementById('mc-btn-save').textContent = 'Guardar';
+    document.getElementById('mc-nombre').value  = c.nombre  || '';
+    document.getElementById('mc-region').value  = c.region  || '';
+    document.getElementById('mc-activo').checked = c.activo === true || String(c.activo) === 'true';
+    document.getElementById('mc-activo-row').style.display = 'block';
+    document.getElementById('mc-error').style.display = 'none';
+    document.getElementById('modal-comandancia').classList.add('show');
+  }
+
+  async function guardarComandancia() {
+    const nombre = document.getElementById('mc-nombre').value.trim();
+    const region = document.getElementById('mc-region').value.trim();
+    const activo = document.getElementById('mc-activo').checked;
+    const errEl  = document.getElementById('mc-error');
+    errEl.style.display = 'none';
+    if (!nombre) { errEl.textContent = 'El nombre es obligatorio.'; errEl.style.display = 'block'; return; }
+    const btn = document.getElementById('mc-btn-save');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      const res = _editCmdId
+        ? await CGBVP_API.estructura.updateComandancia({ id: _editCmdId, nombre, region, activo })
+        : await CGBVP_API.estructura.createComandancia({ nombre, region });
+      if (res.ok) {
+        showToast(_editCmdId ? 'Comandancia actualizada' : `Comandancia "${nombre}" creada`, 'ok');
+        closeModal('modal-comandancia');
+        loadComandanciasTabla();
+      } else { errEl.textContent = res.error || 'Error'; errEl.style.display = 'block'; }
+    } catch (e) { errEl.textContent = 'Error de conexión'; errEl.style.display = 'block'; }
+    finally { btn.disabled = false; btn.textContent = _editCmdId ? 'Guardar' : 'Crear'; }
+  }
+
+  async function toggleComandancia(id, activo) {
+    const res = await CGBVP_API.estructura.updateComandancia({ id, activo });
+    if (res.ok) { showToast('Comandancia actualizada', 'ok'); loadComandanciasTabla(); }
+    else showToast(res.error || 'Error', 'err');
+  }
+
+  // ── Modales Compañía ──────────────────────────────────────
+  async function openNuevaCompania() {
+    _editCiaId = null;
+    document.getElementById('mcia-title').textContent    = '🚒 Nueva Compañía';
+    document.getElementById('mcia-btn-save').textContent = 'Crear';
+    ['mcia-nombre','mcia-codigo','mcia-direccion','mcia-telefono'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('mcia-activo').checked = true;
+    document.getElementById('mcia-activo-row').style.display = 'none';
+    document.getElementById('mcia-error').style.display = 'none';
+    await _poblarSelectComandancias('mcia-cmd', '');
+    document.getElementById('modal-compania').classList.add('show');
+  }
+
+  async function openEditarCompania(c) {
+    _editCiaId = c.id;
+    document.getElementById('mcia-title').textContent    = '✏️ Editar Compañía';
+    document.getElementById('mcia-btn-save').textContent = 'Guardar';
+    document.getElementById('mcia-nombre').value    = c.nombre    || '';
+    document.getElementById('mcia-codigo').value    = c.codigo    || '';
+    document.getElementById('mcia-direccion').value = c.direccion || '';
+    document.getElementById('mcia-telefono').value  = c.telefono  || '';
+    document.getElementById('mcia-activo').checked  = c.activo === true || String(c.activo) === 'true';
+    document.getElementById('mcia-activo-row').style.display = 'block';
+    document.getElementById('mcia-error').style.display = 'none';
+    await _poblarSelectComandancias('mcia-cmd', c.comandancia_id);
+    document.getElementById('modal-compania').classList.add('show');
+  }
+
+  async function _poblarSelectComandancias(selectId, preselect) {
+    const sel = document.getElementById(selectId);
+    if (!_allComandancias.length) {
+      const res = await CGBVP_API.estructura.getComandancias();
+      if (res.ok) _allComandancias = res.data;
+    }
+    sel.innerHTML = '<option value="">Seleccionar comandancia...</option>' +
+      _allComandancias.map(c =>
+        `<option value="${c.id}" ${c.id === preselect ? 'selected' : ''}>${c.nombre}</option>`
+      ).join('');
+  }
+
+  async function guardarCompania() {
+    const nombre    = document.getElementById('mcia-nombre').value.trim();
+    const codigo    = document.getElementById('mcia-codigo').value.trim();
+    const cmd_id    = document.getElementById('mcia-cmd').value;
+    const direccion = document.getElementById('mcia-direccion').value.trim();
+    const telefono  = document.getElementById('mcia-telefono').value.trim();
+    const activo    = document.getElementById('mcia-activo').checked;
+    const errEl     = document.getElementById('mcia-error');
+    errEl.style.display = 'none';
+    if (!nombre || !cmd_id) {
+      errEl.textContent = 'Nombre y comandancia son obligatorios.';
+      errEl.style.display = 'block'; return;
+    }
+    const btn = document.getElementById('mcia-btn-save');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    try {
+      const res = _editCiaId
+        ? await CGBVP_API.estructura.updateCompania({ id: _editCiaId, nombre, codigo, comandancia_id: cmd_id, direccion, telefono, activo })
+        : await CGBVP_API.estructura.createCompania({ nombre, codigo, comandancia_id: cmd_id, direccion, telefono });
+      if (res.ok) {
+        showToast(_editCiaId ? 'Compañía actualizada' : `Compañía "${nombre}" creada`, 'ok');
+        closeModal('modal-compania');
+        loadCompaniasTabla();
+      } else { errEl.textContent = res.error || 'Error'; errEl.style.display = 'block'; }
+    } catch (e) { errEl.textContent = 'Error de conexión'; errEl.style.display = 'block'; }
+    finally { btn.disabled = false; btn.textContent = _editCiaId ? 'Guardar' : 'Crear'; }
+  }
+
+  async function toggleCompania(id, activo) {
+    const res = await CGBVP_API.estructura.updateCompania({ id, activo });
+    if (res.ok) { showToast('Compañía actualizada', 'ok'); loadCompaniasTabla(); }
+    else showToast(res.error || 'Error', 'err');
+  }
+
+  // ── Chat del dashboard ────────────────────────────────────
+  let _chatDashTimer  = null;
+  let _chatDashLastId = null;
+  let _chatDashIncId  = null;
+
+  async function loadChatSelector() {
+    try {
+      const res = await CGBVP_API.incidentes.getAll({ estado:'activo' });
+      if (res.ok) {
+        const sel = document.getElementById('sel-inc-chat');
+        sel.innerHTML = '<option value="">Seleccionar incidente...</option>' +
+          res.data.map(i => `<option value="${i.id}">${i.nombre}</option>`).join('');
+      }
+    } catch {}
+  }
+
+  function iniciarChatDashboard() {
+    const id = document.getElementById('sel-inc-chat').value;
+    if (_chatDashTimer) clearInterval(_chatDashTimer);
+    _chatDashLastId = null;
+    _chatDashIncId  = id;
+    const area = document.getElementById('chat-messages-dash');
+    if (!id) {
+      area.innerHTML = '<div style="text-align:center;color:var(--gt);font-size:13px;padding:32px;">Selecciona un incidente para ver el chat</div>';
+      return;
+    }
+    const inc = document.getElementById('sel-inc-chat').options[document.getElementById('sel-inc-chat').selectedIndex]?.text || '';
+    document.getElementById('chat-inc-nombre').textContent = inc;
+    area.innerHTML = '';
+    _cargarMensajesDash();
+    _chatDashTimer = setInterval(_cargarMensajesDash, 5000);
+  }
+
+  async function _cargarMensajesDash() {
+    if (!_chatDashIncId) return;
+    try {
+      const res = await CGBVP_API.chat.getMensajes(_chatDashIncId, 'general', _chatDashLastId);
+      if (res.ok && res.data.length) {
+        res.data.forEach(m => _appendMensajeDash(m));
+        _chatDashLastId = res.data[res.data.length - 1].id;
+      }
+    } catch {}
+  }
+
+  function _appendMensajeDash(m) {
+    const area  = document.getElementById('chat-messages-dash');
+    const isMe  = m.autor_id === USER.id;
+    const hora  = new Date(m.created_at).toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit' });
+    const isSystem = m.tipo === 'system';
+    const div   = document.createElement('div');
+    if (isSystem) {
+      div.style.cssText = 'text-align:center;';
+      div.innerHTML = `<span style="background:var(--g2);color:var(--gt);font-size:11px;padding:3px 10px;border-radius:10px;">${m.texto}</span>`;
+    } else {
+      div.style.cssText = `display:flex;flex-direction:${isMe?'row-reverse':'row'};gap:8px;align-items:flex-end;`;
+      div.innerHTML = `
+        <div style="width:28px;height:28px;border-radius:50%;background:${isMe?'var(--r)':'var(--g3)'};
+          color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${(m.autor_nombre||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}
+        </div>
+        <div style="max-width:65%;">
+          ${!isMe?`<div style="font-size:10px;font-weight:700;color:var(--r);margin-bottom:2px;">${m.autor_nombre}</div>`:''}
+          <div style="background:${isMe?'var(--r)':'white'};color:${isMe?'white':'#1A1917'};
+            padding:8px 12px;border-radius:${isMe?'12px 12px 2px 12px':'12px 12px 12px 2px'};
+            font-size:13px;line-height:1.4;border:${isMe?'none':'0.5px solid var(--g2)'};">
+            ${m.texto}
+          </div>
+          <div style="font-size:10px;color:var(--gt);margin-top:2px;text-align:${isMe?'right':'left'};">${hora}</div>
+        </div>`;
+    }
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  async function enviarMensajeDash() {
+    const input = document.getElementById('chat-input-dash');
+    const texto = input.value.trim();
+    if (!texto || !_chatDashIncId) return;
+    input.value = '';
+    try {
+      const res = await CGBVP_API.chat.send(_chatDashIncId, 'general', texto);
+      if (res.ok) _appendMensajeDash(res.data);
+    } catch { showToast('Error al enviar mensaje', 'err'); }
+  }
+
+  // Detener chat al cambiar de sección
+  const _origShowSection = showSection;
 
   // ── Estadísticas ──────────────────────────────────────────
   async function loadEstadisticas() {

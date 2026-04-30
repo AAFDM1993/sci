@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CGBVP — Mi Perfil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--r:#CC1E1E;--rd:#A01515;--rl:#FDEAEA;--g1:#F8F7F5;--g2:#EDECE8;--g3:#C8C7C2;--gt:#6B7280;--fn:'Source Sans 3',sans-serif;--ft:'Rajdhani',sans-serif;}
+    body{font-family:var(--fn);background:var(--g1);color:#1A1917;min-height:100vh;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;background:white;padding:12px 24px;border-bottom:2px solid var(--r);position:sticky;top:0;z-index:100;}
+    .tb-left{display:flex;align-items:center;gap:12px;}
+    .flame{width:30px;height:30px;background:var(--r);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+    .tb-title{font-family:var(--ft);font-size:19px;font-weight:700;color:var(--r);}
+    .tb-right{display:flex;align-items:center;gap:10px;}
+    .btn-back{padding:6px 14px;border:1px solid var(--g2);border-radius:6px;font-size:12px;cursor:pointer;background:transparent;color:var(--gt);font-family:var(--fn);}
+    .btn-back:hover{background:var(--g2);}
+    .btn-logout{padding:6px 14px;border:1px solid var(--g2);border-radius:6px;font-size:12px;cursor:pointer;background:transparent;color:var(--gt);font-family:var(--fn);}
+    .btn-logout:hover{background:var(--g2);}
+    .wrap{max-width:760px;margin:28px auto;padding:0 20px 60px;}
+    .profile-hero{background:white;border:0.5px solid var(--g2);border-radius:12px;padding:28px;display:flex;align-items:center;gap:22px;margin-bottom:20px;}
+    .avatar-big{width:72px;height:72px;border-radius:50%;background:var(--r);color:white;font-family:var(--ft);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .hero-info h1{font-family:var(--ft);font-size:22px;font-weight:700;color:#1A1917;margin-bottom:4px;}
+    .hero-info p{font-size:13px;color:var(--gt);}
+    .role-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:6px;}
+    .rp-admin{background:#FEE2E2;color:#991B1B;}
+    .rp-ci{background:#DBEAFE;color:#1E40AF;}
+    .rp-vol{background:#D1FAE5;color:#065F46;}
+    .card{background:white;border:0.5px solid var(--g2);border-radius:10px;padding:22px;margin-bottom:16px;}
+    .card-title{font-family:var(--ft);font-size:16px;font-weight:600;color:#1A1917;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--g2);}
+    .form-group{margin-bottom:14px;}
+    .form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);margin-bottom:5px;}
+    .form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:var(--fn);color:#1A1917;background:white;transition:border-color .12s;}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--r);box-shadow:0 0 0 3px rgba(204,30,30,.08);}
+    .form-group input:disabled{background:var(--g1);color:var(--gt);}
+    .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn-primary{padding:10px 22px;background:var(--r);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fn);transition:background .12s;}
+    .btn-primary:hover{background:var(--rd);}
+    .btn-primary:disabled{background:var(--g3);cursor:not-allowed;}
+    .btn-secondary{padding:10px 18px;background:transparent;border:1px solid var(--g2);border-radius:8px;font-size:13px;cursor:pointer;font-family:var(--fn);color:#1A1917;}
+    .btn-secondary:hover{background:var(--g1);}
+    .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none;}
+    .alert-ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;}
+    .alert-err{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;}
+    .info-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--g2);}
+    .info-row:last-child{border-bottom:none;}
+    .info-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gt);}
+    .info-value{font-size:13px;font-weight:600;color:#1A1917;}
+    .log-row{display:flex;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--g2);font-size:12px;}
+    .log-row:last-child{border-bottom:none;}
+    .log-time{color:var(--gt);flex-shrink:0;width:130px;}
+    .log-action{font-weight:600;}
+    .spinner-sm{width:16px;height:16px;border:2px solid var(--g2);border-top-color:var(--r);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .pass-strength{height:4px;border-radius:2px;margin-top:4px;transition:all .3s;}
+    .ps-weak{background:#EF4444;width:33%;}
+    .ps-medium{background:#F59E0B;width:66%;}
+    .ps-strong{background:#22C55E;width:100%;}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="flame">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C9 7 6 9 6 13a6 6 0 0012 0c0-4-3-6-6-11z" fill="white"/></svg>
+    </div>
+    <span class="tb-title">CGBVP — SCI</span>
+  </div>
+  <div class="tb-right">
+    <button class="btn-back" onclick="window.location.href='dashboard.html'">← Dashboard</button>
+    <button class="btn-logout" onclick="CGBVP_API.logout()">Salir</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Hero -->
+  <div class="profile-hero">
+    <div class="avatar-big" id="pf-avatar">?</div>
+    <div class="hero-info">
+      <h1 id="pf-nombre">Cargando...</h1>
+      <p id="pf-usuario">@usuario</p>
+      <p id="pf-compania" style="margin-top:2px;"></p>
+      <span class="role-pill" id="pf-role-pill">–</span>
+    </div>
+  </div>
+
+  <!-- Información personal -->
+  <div class="card">
+    <div class="card-title">Información personal</div>
+    <div id="info-alert" class="alert"></div>
+    <div class="cols-2">
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="pf-inp-nombre" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="pf-inp-usuario" disabled>
+      </div>
+    </div>
+    <div class="cols-2">
+      <div class="form-group">
+        <label>Rol</label>
+        <input type="text" id="pf-inp-rol" disabled>
+      </div>
+      <div class="form-group">
+        <label>Compañía</label>
+        <input type="text" id="pf-inp-compania" disabled>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-primary" id="btn-save-info" onclick="guardarInfo()">Guardar cambios</button>
+    </div>
+  </div>
+
+  <!-- Cambiar contraseña -->
+  <div class="card">
+    <div class="card-title">Cambiar contraseña</div>
+    <div id="pass-alert" class="alert"></div>
+    <div class="form-group">
+      <label>Contraseña actual</label>
+      <input type="password" id="pf-pass-actual" placeholder="Tu contraseña actual" autocomplete="current-password">
+    </div>
+    <div class="form-group">
+      <label>Nueva contraseña</label>
+      <input type="password" id="pf-pass-nueva" placeholder="Mínimo 6 caracteres"
+        autocomplete="new-password" oninput="checkPassStrength()">
+      <div class="pass-strength" id="pass-strength-bar" style="display:none;"></div>
+    </div>
+    <div class="form-group">
+      <label>Confirmar nueva contraseña</label>
+      <input type="password" id="pf-pass-confirm" placeholder="Repetir nueva contraseña" autocomplete="new-password">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn-primary" id="btn-save-pass" onclick="cambiarPassword()">Cambiar contraseña</button>
+    </div>
+  </div>
+
+  <!-- Datos de sesión -->
+  <div class="card">
+    <div class="card-title">Sesión actual</div>
+    <div class="info-row">
+      <span class="info-label">ID de usuario</span>
+      <span class="info-value" id="ses-id">–</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Comandancia</span>
+      <span class="info-value" id="ses-cmd">–</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Sesión expira</span>
+      <span class="info-value" id="ses-exp">–</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Token</span>
+      <span class="info-value" style="font-size:11px;color:var(--gt);word-break:break-all;" id="ses-token">–</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="cgbvp-api.js"></script>
+<script>
+  if (!CGBVP_API.isLoggedIn()) window.location.href = 'index.html';
+
+  const USER = CGBVP_API.getUser();
+
+  // ── Inicializar ───────────────────────────────────────────
+  function init() {
+    if (!USER) { CGBVP_API.logout(); return; }
+
+    // Avatar
+    const initials = USER.nombre.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    document.getElementById('pf-avatar').textContent = initials;
+
+    // Hero
+    document.getElementById('pf-nombre').textContent  = USER.nombre;
+    document.getElementById('pf-usuario').textContent = '@' + USER.usuario;
+    document.getElementById('pf-compania').textContent = USER.compania_id ? `Compañía: ${USER.compania_id}` : '';
+
+    const rolMap = {
+      administrador       : { label:'Administrador', cls:'rp-admin' },
+      comandante_incidente: { label:'Comandante de Incidente', cls:'rp-ci' },
+      voluntario          : { label:'Voluntario', cls:'rp-vol' },
+    };
+    const r = rolMap[USER.rol] || { label: USER.rol, cls:'rp-vol' };
+    const pill = document.getElementById('pf-role-pill');
+    pill.textContent = r.label;
+    pill.className   = `role-pill ${r.cls}`;
+
+    // Formulario info
+    document.getElementById('pf-inp-nombre').value   = USER.nombre;
+    document.getElementById('pf-inp-usuario').value  = USER.usuario;
+    document.getElementById('pf-inp-rol').value      = r.label;
+    document.getElementById('pf-inp-compania').value = USER.compania_id || '–';
+
+    // Sesión
+    document.getElementById('ses-id').textContent  = USER.id || '–';
+    document.getElementById('ses-cmd').textContent = USER.comandancia_id || '–';
+    const exp = localStorage.getItem('cgbvp_expires');
+    document.getElementById('ses-exp').textContent = exp
+      ? new Date(parseInt(exp)).toLocaleString('es-PE')
+      : '–';
+    const token = CGBVP_API.getToken();
+    document.getElementById('ses-token').textContent = token
+      ? token.slice(0, 40) + '...'
+      : '–';
+  }
+
+  // ── Guardar información personal ──────────────────────────
+  async function guardarInfo() {
+    const nombre = document.getElementById('pf-inp-nombre').value.trim();
+    const alertEl = document.getElementById('info-alert');
+    alertEl.style.display = 'none';
+
+    if (!nombre) {
+      alertEl.textContent = 'El nombre no puede estar vacío.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block'; return;
+    }
+
+    const btn = document.getElementById('btn-save-info');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+
+    try {
+      const res = await CGBVP_API.usuarios.update({ id: USER.id, nombre });
+      if (res.ok) {
+        // Actualizar localStorage con el nuevo nombre
+        const updatedUser = { ...USER, nombre };
+        localStorage.setItem('cgbvp_user', JSON.stringify(updatedUser));
+        alertEl.textContent = 'Información actualizada correctamente.';
+        alertEl.className = 'alert alert-ok';
+        alertEl.style.display = 'block';
+        document.getElementById('pf-nombre').textContent = nombre;
+        document.getElementById('pf-avatar').textContent =
+          nombre.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+        setTimeout(() => alertEl.style.display = 'none', 3000);
+      } else {
+        alertEl.textContent = res.error || 'Error al guardar.';
+        alertEl.className = 'alert alert-err';
+        alertEl.style.display = 'block';
+      }
+    } catch (e) {
+      alertEl.textContent = 'Error de conexión.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar cambios';
+    }
+  }
+
+  // ── Cambiar contraseña ────────────────────────────────────
+  function checkPassStrength() {
+    const pass = document.getElementById('pf-pass-nueva').value;
+    const bar  = document.getElementById('pass-strength-bar');
+    if (!pass) { bar.style.display = 'none'; return; }
+    bar.style.display = 'block';
+    if (pass.length < 6) {
+      bar.className = 'pass-strength ps-weak';
+    } else if (pass.length < 10 || !/[0-9]/.test(pass) || !/[A-Z]/.test(pass)) {
+      bar.className = 'pass-strength ps-medium';
+    } else {
+      bar.className = 'pass-strength ps-strong';
+    }
+  }
+
+  async function cambiarPassword() {
+    const actual   = document.getElementById('pf-pass-actual').value;
+    const nueva    = document.getElementById('pf-pass-nueva').value;
+    const confirm  = document.getElementById('pf-pass-confirm').value;
+    const alertEl  = document.getElementById('pass-alert');
+    alertEl.style.display = 'none';
+
+    if (!actual || !nueva || !confirm) {
+      alertEl.textContent = 'Completa todos los campos de contraseña.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block'; return;
+    }
+    if (nueva !== confirm) {
+      alertEl.textContent = 'Las contraseñas nuevas no coinciden.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block'; return;
+    }
+    if (nueva.length < 6) {
+      alertEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block'; return;
+    }
+
+    // Verificar contraseña actual haciendo login
+    const btn = document.getElementById('btn-save-pass');
+    btn.disabled = true; btn.textContent = 'Verificando...';
+
+    try {
+      // Primero verificar la contraseña actual con un login silencioso
+      const loginRes = await CGBVP_API.login(USER.usuario, actual, USER.compania_id);
+      if (!loginRes.ok) {
+        alertEl.textContent = 'La contraseña actual es incorrecta.';
+        alertEl.className = 'alert alert-err';
+        alertEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Cambiar contraseña';
+        return;
+      }
+
+      // Actualizar con la nueva contraseña
+      const res = await CGBVP_API.usuarios.update({ id: USER.id, password: nueva });
+      if (res.ok) {
+        alertEl.textContent = 'Contraseña cambiada correctamente. Vuelve a iniciar sesión.';
+        alertEl.className = 'alert alert-ok';
+        alertEl.style.display = 'block';
+        document.getElementById('pf-pass-actual').value  = '';
+        document.getElementById('pf-pass-nueva').value   = '';
+        document.getElementById('pf-pass-confirm').value = '';
+        document.getElementById('pass-strength-bar').style.display = 'none';
+        // Cerrar sesión después de 2 segundos para forzar re-login
+        setTimeout(() => CGBVP_API.logout(), 2500);
+      } else {
+        alertEl.textContent = res.error || 'Error al cambiar contraseña.';
+        alertEl.className = 'alert alert-err';
+        alertEl.style.display = 'block';
+      }
+    } catch (e) {
+      alertEl.textContent = 'Error de conexión.';
+      alertEl.className = 'alert alert-err';
+      alertEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Cambiar contraseña';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

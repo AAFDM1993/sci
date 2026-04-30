@@ -8,7 +8,7 @@ const CGBVP_API = (() => {
 
   // ── Configuración ─────────────────────────────────────────
   // Reemplaza con tu URL de despliegue de GAS
-  const API_URL = 'https://script.google.com/macros/s/AKfycby28q1jnDUUam5E3AnnYcHjj0gaSqT0RXrHYGQDc4XlBN1Tey_YvpOwpWnwP-TCqr8URg/exec';
+  const API_URL = 'https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec';
 
   const STORAGE_KEYS = {
     TOKEN   : 'cgbvp_token',
@@ -27,10 +27,10 @@ const CGBVP_API = (() => {
       return res.json();
     }
 
-    // POST: body JSON
+    // POST: body como text/plain para evitar preflight CORS con GAS
+    // GAS recibe el JSON en e.postData.contents y lo parsea normalmente
     const res = await fetch(API_URL, {
       method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body   : JSON.stringify({ action, token, ...data }),
     });
     return res.json();

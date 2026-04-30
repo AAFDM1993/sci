@@ -53,7 +53,13 @@ function initAnexoPage(config) {
       <div class="tb-right">
         <div style="width:8px;height:8px;border-radius:50%;background:#4ADE80;"></div>
         <span style="font-size:12px;color:rgba(255,255,255,.85);">En registro</span>
-        <button class="btn-back-tb" onclick="window.location.href='dashboard.html'">← Dashboard</button>
+        <button class="btn-back-tb" onclick="
+          if (window.parent !== window && window.parent.cerrarDrawer) {
+            window.parent.cerrarDrawer();
+          } else {
+            window.location.href='dashboard.html';
+          }
+        ">← Dashboard</button>
       </div>`;
     document.body.insertBefore(topbar, document.body.firstChild);
 
@@ -118,7 +124,12 @@ function initAnexoPage(config) {
 
   // ── Exponer funciones globales necesarias ─────────────────
   window.irAnexo = (num) => {
-    window.location.href = `anexo${num}.html?incidente_id=${CGBVP_FORM.getIncidenteId()}`;
+    // Si estamos dentro del drawer del dashboard, navegar en el drawer
+    if (window.parent !== window && window.parent.abrirDrawerAnexo) {
+      window.parent.abrirDrawerAnexo(num);
+    } else {
+      window.location.href = `anexo${num}.html?incidente_id=${CGBVP_FORM.getIncidenteId()}`;
+    }
   };
 
   window._cgbvpGuardar = async () => {

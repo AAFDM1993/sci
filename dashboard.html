@@ -321,6 +321,15 @@
       <input type="text" id="ni-ci-nombre" placeholder="Grado + Nombre completo"></div>
     <div class="form-group"><label>Código bombero CI</label>
       <input type="text" id="ni-ci-codigo" placeholder="Ej: LIM-01-042"></div>
+    <div class="form-group" id="ni-cia-group" style="display:none;">
+      <label>Compañía responsable *</label>
+      <select id="ni-cia-cmd" onchange="loadNiCompanias()" style="margin-bottom:6px;">
+        <option value="">Seleccionar comandancia...</option>
+      </select>
+      <select id="ni-cia">
+        <option value="">Seleccionar compañía...</option>
+      </select>
+    </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modal-incidente')">Cancelar</button>
       <button class="btn-primary" onclick="crearIncidente()">Crear incidente</button>
@@ -554,28 +563,62 @@
 
   // ── Nuevo incidente ───────────────────────────────────────
   function openNuevoIncidente() {
+    // Si el usuario no tiene compañía asignada (ej: admin), mostrar selector
+    const ciaGroup = document.getElementById('ni-cia-group');
+    if (!USER.compania_id) {
+      ciaGroup.style.display = 'block';
+      // Cargar comandancias en el selector del modal
+      CGBVP_API.estructura.getComandancias().then(res => {
+        if (res.ok) {
+          document.getElementById('ni-cia-cmd').innerHTML =
+            '<option value="">Seleccionar comandancia...</option>' +
+            res.data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+        }
+      });
+    } else {
+      ciaGroup.style.display = 'none';
+    }
     document.getElementById('modal-incidente').classList.add('show');
   }
 
+  async function loadNiCompanias() {
+    const cmd_id = document.getElementById('ni-cia-cmd').value;
+    const sel    = document.getElementById('ni-cia');
+    if (!cmd_id) { sel.innerHTML = '<option value="">Seleccionar compañía...</option>'; return; }
+    sel.innerHTML = '<option value="">Cargando...</option>';
+    const res = await CGBVP_API.estructura.getCompanias(cmd_id);
+    if (res.ok) {
+      sel.innerHTML = '<option value="">Seleccionar compañía...</option>' +
+        res.data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+    }
+  }
+
   async function crearIncidente() {
-    const nombre  = document.getElementById('ni-nombre').value.trim();
-    const tipo    = document.getElementById('ni-tipo').value;
-    const ubic    = document.getElementById('ni-ubicacion').value.trim();
-    const desc    = document.getElementById('ni-desc').value.trim();
-    const ci_nom  = document.getElementById('ni-ci-nombre').value.trim();
-    const ci_cod  = document.getElementById('ni-ci-codigo').value.trim();
+    const nombre = document.getElementById('ni-nombre').value.trim();
+    const tipo   = document.getElementById('ni-tipo').value;
+    const ubic   = document.getElementById('ni-ubicacion').value.trim();
+    const desc   = document.getElementById('ni-desc').value.trim();
+    const ci_nom = document.getElementById('ni-ci-nombre').value.trim();
+    const ci_cod = document.getElementById('ni-ci-codigo').value.trim();
+
+    // Compañía: usar la del usuario o la seleccionada en el modal
+    const compania_id    = USER.compania_id || document.getElementById('ni-cia')?.value || '';
+    const comandancia_id = USER.comandancia_id || document.getElementById('ni-cia-cmd')?.value || '';
 
     if (!nombre || !ubic) { showToast('Nombre y ubicación son obligatorios', 'err'); return; }
+    if (!compania_id && !USER.compania_id) {
+      showToast('Selecciona una compañía responsable', 'err'); return;
+    }
 
     try {
       const res = await CGBVP_API.incidentes.create({
         nombre, tipo, ubicacion: ubic,
         descripcion_inicial: desc,
-        compania_id   : USER.compania_id,
-        comandancia_id: USER.comandancia_id,
-        ci_nombre     : ci_nom,
-        ci_codigo     : ci_cod,
-        ci_compania   : USER.compania_id,
+        compania_id,
+        comandancia_id,
+        ci_nombre  : ci_nom,
+        ci_codigo  : ci_cod,
+        ci_compania: compania_id,
       });
 
       if (res.ok) {
